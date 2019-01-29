@@ -160,7 +160,16 @@ public class GirlsAutonomous extends OpMode {
             //endregion
             //region State: Transient
             case TRANSIENT: {
-                wm.setPower(1,1);
+                if (stateHistory.get(1) == State.DEPOT) {
+                    if (wm.getPolPos()[0] < 170) {
+                        wm.setPower(1, 1);
+                    } else {
+                        wm.setPower(0,0);
+                        changeState(State.CRATER);
+                    }
+                } else if (stateHistory.get(1) == State.CRATER) {
+                    // head to the depot
+                }
                 break;
             }
             //endregion
