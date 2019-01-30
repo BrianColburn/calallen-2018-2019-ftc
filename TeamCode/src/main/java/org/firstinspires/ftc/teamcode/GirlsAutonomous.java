@@ -27,6 +27,7 @@ public class GirlsAutonomous extends OpMode {
 
     //region State variables
     private enum State {
+        OFF,       // Robot is off
         HANGING,   // We need to deploy
         TOKEN,     // Drop off the token
         DEPOT,     // Token has been dropped off
@@ -45,6 +46,8 @@ public class GirlsAutonomous extends OpMode {
     @Override
     public void init() {
         telemetry.addData("Status", "DogeCV 2018.0 - Girls Autonomous");
+        stateHistory.push(State.OFF);
+        changeState(State.OFF);
 
 
         //region Initialize Gold Detector
@@ -84,7 +87,7 @@ public class GirlsAutonomous extends OpMode {
         servo = hardwareMap.get(Servo.class, "ser0");
         servo.setPosition(0);
 
-        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, .2);
+        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, 1);
         //endregion
     }
 
@@ -96,6 +99,7 @@ public class GirlsAutonomous extends OpMode {
 
     void updateInfo() {
         telemetry.addData("Position", "(%.2f, %.2f)", wm.getPolPos()[0], wm.getPolPos()[1]*1800/Math.PI);
+        telemetry.addData("State", "%s (%s) Time: %.1f", state, stateHistory.get(1), stateTime.seconds());
         if (detector.isFound()) {
             telemetry.addData("IsAligned", detector.getAligned()); // Is the bot aligned with the gold mineral
             telemetry.addData("X Pos", detector.getXPosition()); // Gold X pos.
@@ -133,14 +137,15 @@ public class GirlsAutonomous extends OpMode {
             //endregion
             //region State: Token
             case TOKEN: {
-                if (wm.getPolPos()[0] > 170)
+                if (wm.getPolPos()[0] > 40)
                 { // Stop moving and change states
                     changeState(State.DEPOT);
                     wm.setPower(0,0);
-                } else if (wm.getPolPos()[0] > 150)
+                } else if (wm.getPolPos()[0] > 35)
                 { // Drop the token
                     servo.setPosition(1);
                 } else { // Keep moving forward
+                    wm.setPower(.4,.4);
                     break;
                 }
                 break;
@@ -149,11 +154,11 @@ public class GirlsAutonomous extends OpMode {
             //region State: Depot
             case DEPOT: {
                 // We need to rotate to face the crater
-                if (wm.getDegrees() <= 120) {
-                    wm.setPower(-1,1);
+                if (wm.getDegrees() <= 19) {
+                    wm.setPower(-.4,.4);
                 }
                 // We are facing the crater
-                else if (wm.getDegrees() > 120){
+                else if (wm.getDegrees() > 19) {
                     changeState(State.TRANSIENT);
                 }
                 break;
@@ -163,7 +168,7 @@ public class GirlsAutonomous extends OpMode {
             case TRANSIENT: {
                 switch (stateHistory.get(1)) {
                     case DEPOT: {
-                        if (wm.getPolPos()[0] < 170) {
+                        if (wm.getPolPos()[0] < 350) {
                             wm.setPower(1, 1);
                         } else {
                             wm.setPower(0,0);
