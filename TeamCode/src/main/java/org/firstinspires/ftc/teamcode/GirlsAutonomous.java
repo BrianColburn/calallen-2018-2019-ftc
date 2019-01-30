@@ -127,6 +127,7 @@ public class GirlsAutonomous extends OpMode {
         switch (state) {
             //region State: Hanging
             case HANGING: {
+                changeState(State.TOKEN);
                 break;
             }
             //endregion
@@ -160,15 +161,23 @@ public class GirlsAutonomous extends OpMode {
             //endregion
             //region State: Transient
             case TRANSIENT: {
-                if (stateHistory.get(1) == State.DEPOT) {
-                    if (wm.getPolPos()[0] < 170) {
-                        wm.setPower(1, 1);
-                    } else {
-                        wm.setPower(0,0);
-                        changeState(State.CRATER);
+                switch (stateHistory.get(1)) {
+                    case DEPOT: {
+                        if (wm.getPolPos()[0] < 170) {
+                            wm.setPower(1, 1);
+                        } else {
+                            wm.setPower(0,0);
+                            changeState(State.CRATER);
+                        }
+                        break;
                     }
-                } else if (stateHistory.get(1) == State.CRATER) {
-                    // head to the depot
+                    case CRATER: {
+                        // head to the depot
+                        break;
+                    }
+                    default: {
+                        throw new IllegalStateException();
+                    }
                 }
                 break;
             }
