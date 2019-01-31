@@ -38,6 +38,7 @@ public class GirlsAutonomous extends OpMode {
     private LinkedList<State> stateHistory = new LinkedList<>();
     private State state;
     private ElapsedTime stateTime = new ElapsedTime();
+    private long stateIterations;
     //endregion
 
     private WheelManager wm;
@@ -94,6 +95,7 @@ public class GirlsAutonomous extends OpMode {
     void changeState(State s) {
         state = s;
         stateHistory.push(state);
+        stateIterations = 0;
         stateTime.reset();
     }
 
@@ -264,6 +266,7 @@ public class GirlsAutonomous extends OpMode {
             }
             //endregion
         }
+        stateIterations++;
     }
 
     /*
