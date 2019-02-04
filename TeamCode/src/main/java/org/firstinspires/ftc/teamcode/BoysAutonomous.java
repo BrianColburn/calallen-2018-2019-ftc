@@ -45,6 +45,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class BoysAutonomous extends OpMode
 {
+    private ElapsedTime runtime = new ElapsedTime();
+
+    //region Gold Detector and Motor variables
     private GoldAlignDetector detector;
     // looking for a 5cm X 5cm X 5cm gold cube
     // ~170px, 100px at 21 cm
@@ -55,12 +58,8 @@ public class BoysAutonomous extends OpMode
     private State state;
     private WheelManager wm;
     private boolean direction = false;
+    //endregion
 
-    private SensorManager mSensorManager;
-    private Sensor mSensor;
-    private ElapsedTime runtime = new ElapsedTime();
-    //mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-    //mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
 
 
     @Override
