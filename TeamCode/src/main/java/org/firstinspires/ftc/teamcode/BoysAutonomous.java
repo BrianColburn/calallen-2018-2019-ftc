@@ -58,6 +58,7 @@ public class BoysAutonomous extends OpMode
     private Servo servo;
     private WheelManager wm;
     private boolean direction = false;
+    private double angleOffset = 0;
     //endregion
 
 
@@ -289,6 +290,19 @@ public class BoysAutonomous extends OpMode
             //endregion
             //region State: Crater
             case CRATER: {
+                // We still need to drop off the token
+                if (!stateHistory.contains(State.TOKEN)) {
+                    if (stateIterations == 0) {
+                        angleOffset = wm.getDegrees();
+                        wm.setPower(.4,-.4);
+                    }
+                    if (Math.abs(wm.getDegrees())-angleOffset >= 90) {
+                        wm.setPower(0,0);
+                        changeState(State.TRANSIENT);
+                    }
+                } else {
+                    changeState(State.OFF);
+                }
                 break;
             }
             //endregion
