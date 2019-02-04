@@ -207,7 +207,7 @@ public class BoysAutonomous extends OpMode
                         break;
                     }
                     default: {
-                        throw new IllegalStateException();
+                        throw new IllegalStateException("The state `TRANSIENT' cannot follow from the state " + stateHistory.get(1));
                     }
                 }
                 break;
