@@ -103,7 +103,7 @@ public class GirlsAutonomous extends OpMode {
 
     void updateInfo() {
         telemetry.addData("Position", "(%.2f, %.2f)", wm.getPolPos()[0], wm.getPolPos()[1]*1800/Math.PI);
-        telemetry.addData("State", "%s (%s) Time: %.1f", state, stateHistory.get(1), stateTime.seconds());
+        telemetry.addData("State", "%s (%s) Time: %.1f (%d)", state, stateHistory.get(1), stateTime.seconds(), stateIterations);
         if (detector.isFound()) {
             telemetry.addData("IsAligned", detector.getAligned()); // Is the bot aligned with the gold mineral
             telemetry.addData("X Pos", detector.getXPosition()); // Gold X pos.
@@ -259,6 +259,14 @@ public class GirlsAutonomous extends OpMode {
             //endregion
             //region State: Crater
             case CRATER: {
+                break;
+            }
+            //endregion
+            //region State: Off
+            case OFF: {
+                if (stateIterations == 0) {
+                    stop();
+                }
                 break;
             }
             //endregion
