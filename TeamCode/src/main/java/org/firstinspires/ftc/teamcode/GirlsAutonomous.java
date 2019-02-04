@@ -17,7 +17,11 @@ public class GirlsAutonomous extends OpMode {
 
     //region Gold Detector and Motor variables
     private GoldAlignDetector detector;
+
     private DcMotor[] mot = new DcMotor[5];
+    private WheelManager wm;
+    private static final double ACHE = 20/135;
+
     private Servo servo;
     //endregion
 
@@ -40,8 +44,6 @@ public class GirlsAutonomous extends OpMode {
     private ElapsedTime stateTime = new ElapsedTime();
     private long stateIterations;
     //endregion
-
-    private WheelManager wm;
 
 
     @Override
@@ -156,7 +158,7 @@ public class GirlsAutonomous extends OpMode {
             //region State: Depot
             case DEPOT: {
                 // We need to rotate to face the crater
-                if (wm.getDegrees() <= 19) {
+                if (wm.getDegrees() <= 135*ACHE) {
                     wm.setPower(-.4,.4);
                 }
                 // We are facing the crater
