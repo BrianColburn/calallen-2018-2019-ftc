@@ -40,6 +40,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.LinkedList;
+
 
 @Autonomous(name="Boys Autonomous", group="DogeCV")
 
@@ -54,17 +56,32 @@ public class BoysAutonomous extends OpMode
     // 85px by 115px at 30 cm
     private DcMotor[] mot = new DcMotor[5];
     private Servo servo;
-    private enum State {HANGING, CUBE, IN_PIT}
-    private State state;
     private WheelManager wm;
     private boolean direction = false;
     //endregion
 
 
+    //region State variables
+    private enum State {
+        OFF,       // Robot is off
+        HANGING,   // We need to deploy
+        TOKEN,     // Drop off the token
+        DEPOT,     // Token has been dropped off
+        TRANSIENT, // En route to the crater
+        CUBE,      // Looking for a cube
+        CRATER     // In the crater
+    }
+    private LinkedList<State> stateHistory = new LinkedList<>();
+    private State state;
+    private ElapsedTime stateTime = new ElapsedTime();
+    private long stateIterations;
+    //endregion
 
     @Override
     public void init() {
         telemetry.addData("Status", "DogeCV 2018.0 - Gold Align Example");
+        stateHistory.push(State.OFF);
+        changeState(State.OFF);
 
         detector = new GoldAlignDetector();
         detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
@@ -101,6 +118,13 @@ public class BoysAutonomous extends OpMode
         wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1);
     }
 
+    void changeState(State s) {
+        state = s;
+        stateHistory.push(state);
+        stateIterations = 0;
+        stateTime.reset();
+    }
+
     void updateInfo() {
         telemetry.addData("Runtime", "%.2f", runtime.seconds());
         telemetry.addData("Position","%.2f, %.2f", wm.getPolPos()[0], wm.getPolPos()[1]);
@@ -124,7 +148,7 @@ public class BoysAutonomous extends OpMode
      */
     @Override
     public void start() {
-        state = State.HANGING;
+        changeState(State.HANGING);
         runtime.reset();
     }
 
@@ -194,7 +218,6 @@ public class BoysAutonomous extends OpMode
                         }
 
                         stop();
-                        state = State.IN_PIT;
                     }
                 }
             } else if (runtime.seconds() > 25) { // We don't see the cube
