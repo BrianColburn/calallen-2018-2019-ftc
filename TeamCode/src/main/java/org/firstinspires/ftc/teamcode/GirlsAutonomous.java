@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.LinkedList;
 
 
-@Autonomous(name="GirlsAutonmous", group ="Test")
+@Autonomous(name="GirlsAutonomous", group ="Girls")
 public class GirlsAutonomous extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -30,7 +30,7 @@ public class GirlsAutonomous extends OpMode {
 
 
     //region State variables
-    private enum State {
+    public enum State {
         OFF,       // Robot is off
         HANGING,   // We need to deploy
         TOKEN,     // Drop off the token
@@ -39,10 +39,11 @@ public class GirlsAutonomous extends OpMode {
         CUBE,      // Looking for a cube
         CRATER     // In the crater
     }
-    private LinkedList<State> stateHistory = new LinkedList<>();
-    private State state;
-    private ElapsedTime stateTime = new ElapsedTime();
-    private long stateIterations;
+    public LinkedList<State> stateHistory = new LinkedList<>();
+    public State state;
+    public ElapsedTime stateTime = new ElapsedTime();
+    public long stateIterations;
+    public State postHang;
     //endregion
 
 
@@ -135,7 +136,7 @@ public class GirlsAutonomous extends OpMode {
         switch (state) {
             //region State: Hanging
             case HANGING: {
-                changeState(State.TOKEN);
+                changeState(postHang);
                 break;
             }
             //endregion

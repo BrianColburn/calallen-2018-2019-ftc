@@ -43,7 +43,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.LinkedList;
 
 
-@Autonomous(name="Boys Autonomous", group="DogeCV")
+@Autonomous(name="Boys Autonomous", group="Boys")
 
 public class BoysAutonomous extends OpMode
 {
@@ -63,7 +63,7 @@ public class BoysAutonomous extends OpMode
 
 
     //region State variables
-    private enum State {
+    public enum State {
         OFF,       // Robot is off
         HANGING,   // We need to deploy
         TOKEN,     // Drop off the token
@@ -72,10 +72,11 @@ public class BoysAutonomous extends OpMode
         CUBE,      // Looking for a cube
         CRATER     // In the crater
     }
-    private LinkedList<State> stateHistory = new LinkedList<>();
-    private State state;
-    private ElapsedTime stateTime = new ElapsedTime();
-    private long stateIterations;
+    public LinkedList<State> stateHistory = new LinkedList<>();
+    public State state;
+    public ElapsedTime stateTime = new ElapsedTime();
+    public long stateIterations;
+    public  State postHang;
     //endregion
 
     @Override
@@ -266,7 +267,7 @@ public class BoysAutonomous extends OpMode
                                 e.printStackTrace();
                             }
 
-                            changeState(State.CRATER);
+                            changeState(postHang);
                         }
                     }
                 } else if (runtime.seconds() > 25) { // We don't see the cube
