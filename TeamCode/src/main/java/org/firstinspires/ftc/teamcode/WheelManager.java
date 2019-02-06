@@ -21,6 +21,8 @@ public class WheelManager {
     private double scale;
     private double[] pos;
     private double axle;
+    private int[] encoders;
+    private int[] lastEncoding;
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -33,6 +35,8 @@ public class WheelManager {
      */
     public WheelManager(DcMotor[] mot, double radius, double omega, double axle, double scale) {
         this.mot    = mot;
+        this.encoders = new int[mot.length];
+        this.lastEncoding = new int[encoders.length];
         this.radius = radius;
         this.theta  = 0;
         this.dist   = 0;
@@ -132,6 +136,19 @@ public class WheelManager {
     public String toString() {
         double[] p = getCartPos();
         return String.format("(%.2f, %.2f, %.2f)", p[0], p[1], p[2]*1800/Math.PI);
+    }
+
+    public int[] getEncoders() {
+        return encoders;
+    }
+
+    public void update() {
+        for (int i = 0; i < mot.length; i++) {
+            int pos = mot[i].getCurrentPosition();
+            int lastPos = lastEncoding[i];
+            encoders[i] += pos!=lastPos?pos:0;
+            lastEncoding[i] = mot[i].getCurrentPosition();
+        }
     }
 
     class WheelPair<T extends DcMotor> implements DcMotor {
