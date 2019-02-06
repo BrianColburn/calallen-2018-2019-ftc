@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 
-@Autonomous(name="Boys Autonomous", group="Boys")
+//@Autonomous(name="Boys Autonomous", group="Boys")
 
 public class BoysAutonomous extends AbstractAutonomous
 {

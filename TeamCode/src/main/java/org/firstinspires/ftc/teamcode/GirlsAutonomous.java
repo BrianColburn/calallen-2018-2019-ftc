@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 
-@Autonomous(name="GirlsAutonomous", group ="Girls")
+//@Autonomous(name="GirlsAutonomous", group ="Girls")
 public class GirlsAutonomous extends AbstractAutonomous {
 
     //region Gold Detector and Motor variables

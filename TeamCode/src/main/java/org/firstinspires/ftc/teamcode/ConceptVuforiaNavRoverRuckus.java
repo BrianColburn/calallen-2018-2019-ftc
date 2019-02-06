@@ -91,7 +91,7 @@ import java.util.List;
  * is explained below.
  */
 
-@TeleOp(name="Concept: Vuforia Rover Nav", group ="Concept")
+//@TeleOp(name="Concept: Vuforia Rover Nav", group ="Concept")
 public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
     /*
