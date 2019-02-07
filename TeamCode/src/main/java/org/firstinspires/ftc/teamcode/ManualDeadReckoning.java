@@ -74,15 +74,31 @@ public class ManualDeadReckoning extends OpMode
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        for (int i=0;i<mot.length;mot[i]=hardwareMap.get(DcMotor.class, "mot"+i++))
-        hook  = mot[4];
-        //servo = hardwareMap.get(Servo.class, "ser0");
-
-        // Most robots need the motor on one side to be reversed to drive forward
-        // Reverse the motor that runs backwards when connected directly to the battery
+        for (int i=0;i<mot.length;i++) {
+            try {
+                mot[i] = hardwareMap.get(DcMotor.class, "mot" + i);
+            } catch (IllegalArgumentException e){
+                telemetry.addData("mot"+i+" is null","");
+            }
+        }
         mot[0].setDirection(DcMotor.Direction.REVERSE);
         mot[3].setDirection(DcMotor.Direction.REVERSE);
+        for (int i=0;i<mot.length;i++) {
+            mot[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            mot[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+        servo = hardwareMap.get(Servo.class, "ser0");
+        servo.setPosition(0);
+
+        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, 1);
+
+        hook  = mot[4];
+
         wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, .2);
+
+        mot[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, .2);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -100,8 +116,13 @@ public class ManualDeadReckoning extends OpMode
      */
     @Override
     public void start() {
+        for (int i=0;i<mot.length;i++) {
+            mot[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
         runtime.reset();
     }
+
+    int target = 10;
 
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -112,9 +133,29 @@ public class ManualDeadReckoning extends OpMode
         double leftPower;
         double rightPower;
 
-        if (gamepad1.left_bumper && runtime.seconds() - hookReverseTime >= .5) {
-            hookDir *= -1;
-            hookReverseTime = runtime.seconds();
+        if (runtime.seconds() - hookReverseTime >= .5) {
+            if (gamepad1.dpad_right) {
+                hookReverseTime = runtime.seconds();
+                mot[0].setTargetPosition(mot[0].getCurrentPosition() + target);
+            } else if (gamepad1.dpad_left) {
+                hookReverseTime = runtime.seconds();
+                mot[0].setTargetPosition(mot[0].getCurrentPosition() - target);
+            } else if (gamepad1.dpad_up) {
+                hookReverseTime = runtime.seconds();
+                mot[0].setPower(.4);
+            } else if (gamepad1.dpad_down) {
+                hookReverseTime = runtime.seconds();
+                mot[0].setPower(-.4);
+            } else if (gamepad1.y) {
+                hookReverseTime = runtime.seconds();
+                mot[0].setPower(0);
+            } else if (gamepad1.x) {
+                hookReverseTime = runtime.seconds();
+                target--;
+            } else if (gamepad1.b) {
+                hookReverseTime = runtime.seconds();
+                target++;
+            }
         }
 
         // Choose to drive using either Tank Mode, or POV Mode
@@ -135,7 +176,7 @@ public class ManualDeadReckoning extends OpMode
         // rightPower = -gamepad1.right_stick_y ;
 
         // Send calculated power to wheels
-        wm.setPower(leftPower, rightPower);
+        //wm.setPower(leftPower, rightPower);
         //hook.setPower(hookPow);
         //servo.setPosition(servoPos);
 
@@ -145,7 +186,14 @@ public class ManualDeadReckoning extends OpMode
         //telemetry.addData("Servo", "(%.0f) Degrees", servoPos*180);
         double[] pos = wm.getPolPos();//getCartPos();
         //telemetry.addData("Position", "(%.2f, %.2f, %.2f)", pos[0], pos[1], pos[2]*180/Math.PI%360);
+
         telemetry.addData("Position", "(%.2f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
+
+        wm.update();
+
+        telemetry.addData("Encoders", "FR: %d, BR: %d, FL: %d, BL: %d", wm.getEncoders()[0], wm.getEncoders()[2], wm.getEncoders()[1], wm.getEncoders()[3]);
+        //telemetry.addData("Position", "(%.2f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
+        telemetry.addData("Target Position", mot[0].getTargetPosition());
     }
 
     /*
