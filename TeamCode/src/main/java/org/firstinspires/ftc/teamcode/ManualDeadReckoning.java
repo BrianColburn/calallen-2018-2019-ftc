@@ -117,7 +117,7 @@ public class ManualDeadReckoning extends OpMode
     @Override
     public void start() {
         for (int i=0;i<mot.length;i++) {
-            mot[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            mot[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
         runtime.reset();
     }
@@ -188,6 +188,8 @@ public class ManualDeadReckoning extends OpMode
         //telemetry.addData("Position", "(%.2f, %.2f, %.2f)", pos[0], pos[1], pos[2]*180/Math.PI%360);
 
         telemetry.addData("Position", "(%.2f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
+
+        wm.update();
 
         telemetry.addData("Encoders", "FR: %d, BR: %d, FL: %d, BL: %d", wm.getEncoders()[0], wm.getEncoders()[2], wm.getEncoders()[1], wm.getEncoders()[3]);
         //telemetry.addData("Position", "(%.2f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
