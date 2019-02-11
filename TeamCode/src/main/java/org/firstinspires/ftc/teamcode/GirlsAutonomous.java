@@ -1,131 +1,28 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.disnodeteam.dogecv.CameraViewDisplay;
-import com.disnodeteam.dogecv.DogeCV;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import java.util.LinkedList;
 
 
-@Autonomous(name="GirlsAutonmous", group ="Test")
-public class GirlsAutonomous extends OpMode {
-    private ElapsedTime runtime = new ElapsedTime();
+//@Autonomous(name="GirlsAutonomous", group ="Girls")
+public class GirlsAutonomous extends AbstractAutonomous {
 
     //region Gold Detector and Motor variables
-    private GoldAlignDetector detector;
-
-    private DcMotor[] mot = new DcMotor[5];
-    private WheelManager wm;
     private static final double ACHE = 20/135;
-
-    private Servo servo;
     //endregion
 
-    private boolean direction = false;
     private boolean attack = false;
-
-
-    //region State variables
-    private enum State {
-        OFF,       // Robot is off
-        HANGING,   // We need to deploy
-        TOKEN,     // Drop off the token
-        DEPOT,     // Token has been dropped off
-        TRANSIENT, // En route to the crater
-        CUBE,      // Looking for a cube
-        CRATER     // In the crater
-    }
-    private LinkedList<State> stateHistory = new LinkedList<>();
-    private State state;
-    private ElapsedTime stateTime = new ElapsedTime();
-    private long stateIterations;
-    //endregion
 
 
     @Override
     public void init() {
-        telemetry.addData("Status", "DogeCV 2018.0 - Girls Autonomous");
-        stateHistory.push(State.OFF);
-        changeState(State.OFF);
-
-
-        //region Initialize Gold Detector
-        detector = new GoldAlignDetector();
-        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
-        detector.useDefaults();
-
-        // Optional Tuning
-        detector.alignSize = 100; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
-        detector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
-        detector.downscale = 0.4; // How much to downscale the input frames
-
-        detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
-        //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
-        detector.maxAreaScorer.weight = 0.005;
-
-        detector.ratioScorer.weight = 5;
-        detector.ratioScorer.perfectRatio = 1.0;
-
-        detector.enable();
-        //endregion
-
+        telemetry.addData("Status", "Girls Autonomous");
+        super.init();
 
         //region Initialize motors and servos
-        for (int i=0;i<mot.length;i++) {
-            try {
-                mot[i] = hardwareMap.get(DcMotor.class, "mot" + i);
-            } catch (IllegalArgumentException e){
-                telemetry.addData("mot"+i+" is null","");
-            }
-        }
-        mot[0].setDirection(DcMotor.Direction.REVERSE);
-        mot[3].setDirection(DcMotor.Direction.REVERSE);
-
-        mot[4] = hardwareMap.get(DcMotor.class, "mot4");
-
-        servo = hardwareMap.get(Servo.class, "ser0");
         servo.setPosition(0);
 
         wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, 1);
         //endregion
-    }
-
-    void changeState(State s) {
-        state = s;
-        stateHistory.push(state);
-        stateIterations = 0;
-        stateTime.reset();
-    }
-
-    void updateInfo() {
-        telemetry.addData("Position", "(%.2f, %.2f)", wm.getPolPos()[0], wm.getPolPos()[1]*1800/Math.PI);
-        telemetry.addData("State", "%s (%s) Time: %.1f", state, stateHistory.get(1), stateTime.seconds());
-        if (detector.isFound()) {
-            telemetry.addData("IsAligned", detector.getAligned()); // Is the bot aligned with the gold mineral
-            telemetry.addData("X Pos", detector.getXPosition()); // Gold X pos.
-            telemetry.addData("Y Pos", detector.getYPosition());
-            telemetry.addData("Dimensions", "%d, %d", detector.getRect().width, detector.getRect().height);
-            telemetry.addData("Distance", "%.2f, %.2f, %.2f", detector.getDistances()[0], detector.getDistances()[1], detector.getDistances()[2]);
-            telemetry.addData("Variance", "%.2f, %.2f", detector.getDistances()[2]-detector.getDistances()[0], (detector.getDistances()[2] + detector.getDistances()[0])/2);
-        }
-    }
-
-    @Override
-    public void init_loop() {
-        updateInfo();
-    }
-
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
-    @Override
-    public void start() {
-        runtime.reset();
-        changeState(State.HANGING);
     }
 
 
@@ -135,7 +32,7 @@ public class GirlsAutonomous extends OpMode {
         switch (state) {
             //region State: Hanging
             case HANGING: {
-                changeState(State.TOKEN);
+                changeState(postHang);
                 break;
             }
             //endregion
@@ -259,6 +156,14 @@ public class GirlsAutonomous extends OpMode {
             //endregion
             //region State: Crater
             case CRATER: {
+                break;
+            }
+            //endregion
+            //region State: Off
+            case OFF: {
+                if (stateIterations == 0) {
+                    stop();
+                }
                 break;
             }
             //endregion
