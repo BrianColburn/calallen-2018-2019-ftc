@@ -117,7 +117,7 @@ public class ManualDeadReckoning extends OpMode
     @Override
     public void start() {
         for (int i=0;i<mot.length;i++) {
-            mot[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            mot[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
         runtime.reset();
     }
@@ -133,30 +133,6 @@ public class ManualDeadReckoning extends OpMode
         double leftPower;
         double rightPower;
 
-        if (runtime.seconds() - hookReverseTime >= .5) {
-            if (gamepad1.dpad_right) {
-                hookReverseTime = runtime.seconds();
-                mot[0].setTargetPosition(mot[0].getCurrentPosition() + target);
-            } else if (gamepad1.dpad_left) {
-                hookReverseTime = runtime.seconds();
-                mot[0].setTargetPosition(mot[0].getCurrentPosition() - target);
-            } else if (gamepad1.dpad_up) {
-                hookReverseTime = runtime.seconds();
-                mot[0].setPower(.4);
-            } else if (gamepad1.dpad_down) {
-                hookReverseTime = runtime.seconds();
-                mot[0].setPower(-.4);
-            } else if (gamepad1.y) {
-                hookReverseTime = runtime.seconds();
-                mot[0].setPower(0);
-            } else if (gamepad1.x) {
-                hookReverseTime = runtime.seconds();
-                target--;
-            } else if (gamepad1.b) {
-                hookReverseTime = runtime.seconds();
-                target++;
-            }
-        }
 
         // Choose to drive using either Tank Mode, or POV Mode
         // Comment out the method that's not used.  The default below is POV.
@@ -176,7 +152,7 @@ public class ManualDeadReckoning extends OpMode
         // rightPower = -gamepad1.right_stick_y ;
 
         // Send calculated power to wheels
-        //wm.setPower(leftPower, rightPower);
+        wm.setPower(leftPower, rightPower);
         //hook.setPower(hookPow);
         //servo.setPosition(servoPos);
 
@@ -191,7 +167,7 @@ public class ManualDeadReckoning extends OpMode
 
         wm.update();
 
-        telemetry.addData("Encoders", "FR: %d, BR: %d, FL: %d, BL: %d", wm.getEncoders()[0], wm.getEncoders()[2], wm.getEncoders()[1], wm.getEncoders()[3]);
+        telemetry.addData("Encoders", "FR: %d, BR: %d, FL: %d, BL: %d", mot[0].getCurrentPosition(), mot[2].getCurrentPosition(), mot[1].getCurrentPosition(), mot[3].getCurrentPosition());
         //telemetry.addData("Position", "(%.2f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
         telemetry.addData("Target Position", mot[0].getTargetPosition());
     }
