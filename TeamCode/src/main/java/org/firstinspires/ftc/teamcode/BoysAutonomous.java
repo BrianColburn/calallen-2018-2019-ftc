@@ -17,7 +17,7 @@ public class BoysAutonomous extends AbstractAutonomous
         //servo.scaleRange(0,.8);
         servo.setPosition(180/180.);
 
-        wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1);
+        wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,-1);
     }
 
 

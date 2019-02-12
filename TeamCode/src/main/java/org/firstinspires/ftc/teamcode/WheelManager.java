@@ -23,6 +23,8 @@ public class WheelManager {
     private double axle;
     private int[] encoders;
     private int[] lastEncoding;
+    private final int ticks;
+    private int previousPosition;
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -33,7 +35,7 @@ public class WheelManager {
      * @param omega   the radial velocity of the wheels at speed scale
      * @param scale   scaling factor
      */
-    public WheelManager(DcMotor[] mot, double radius, double omega, double axle, double scale) {
+    public WheelManager(DcMotor[] mot, double radius, double omega, double axle, double scale, final int ticks) {
         this.mot    = mot;
         this.encoders = new int[mot.length];
         this.lastEncoding = new int[encoders.length];
@@ -47,6 +49,8 @@ public class WheelManager {
         this.time   = System.currentTimeMillis()/1000.;
         this.pos    = new double[] {0,0,0};
         this.axle   = axle;
+        this.ticks  = ticks;
+        this.previousPosition = 0;
     }
 
     /**
@@ -69,7 +73,14 @@ public class WheelManager {
      */
     private double d(double t, double D) {
         //System.out.printf("Old dist: %.2f, D: %.2f, t: %.2f, new dist: %.2f%n",dist,D,t,dist + D*t);
-        return D*omega*radius*t;
+        if (ticks < 0) {
+            // (unit-less) * ((length/time)/time) * (length) * (time)
+            // (unit-less) * (length/time) * (length)
+            return D * omega * radius * t;
+        } else {
+            // (unit-less) * (length) / (time) * (length)
+            return D * (mot[1].getCurrentPosition() - previousPosition) / t * radius;
+        }
     }
 
     public void setPower(double l, double r) {
@@ -79,6 +90,7 @@ public class WheelManager {
             double[] dt = getPolPos();
             dist = dt[0];
             theta = dt[1];
+            previousPosition = mot[0].getCurrentPosition();
             time = System.currentTimeMillis() / 1000.;
             left = l * scale;
             right = r * scale;

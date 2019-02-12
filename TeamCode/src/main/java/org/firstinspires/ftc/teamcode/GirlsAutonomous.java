@@ -21,7 +21,7 @@ public class GirlsAutonomous extends AbstractAutonomous {
         //region Initialize motors and servos
         servo.setPosition(0);
 
-        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, 1);
+        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, 1, 1120);
         //endregion
     }
 
