@@ -79,7 +79,7 @@ public class WheelManager {
             return D * omega * radius * t;
         } else {
             // (unit-less) * (length) / (time) * (length)
-            return D * (mot[1].getCurrentPosition() - previousPosition) / t * radius;
+            return D * (mot[1].getCurrentPosition() - previousPosition) * (360./ticks) * radius;
         }
     }
 
@@ -90,7 +90,7 @@ public class WheelManager {
             double[] dt = getPolPos();
             dist = dt[0];
             theta = dt[1];
-            previousPosition = mot[0].getCurrentPosition();
+            previousPosition = mot[1].getCurrentPosition();
             time = System.currentTimeMillis() / 1000.;
             left = l * scale;
             right = r * scale;
