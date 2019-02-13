@@ -163,9 +163,9 @@ public class ManualDeadReckoning extends OpMode
         double[] pos = wm.getPolPos();//getCartPos();
         //telemetry.addData("Position", "(%.2f, %.2f, %.2f)", pos[0], pos[1], pos[2]*180/Math.PI%360);
 
-        telemetry.addData("Position", "(%f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
-        telemetry.addData("Corrected", "(%f)/_(%.2f)", 25.4/3.533482*pos[0],360./511*pos[1]*1800/Math.PI);
-        telemetry.addData("Inches", "(%f)/_(%.2f)", 10/3.533482*pos[0],pos[1]*1800/Math.PI);
+        telemetry.addData("Position", "(%.2f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
+        telemetry.addData("Corrected", "(%f)/_(%f)", 25.4/3.533482*pos[0],360./511*pos[1]*1800/Math.PI);
+        telemetry.addData("Inches", "(%f)/_(%f)", 10/3.533482*pos[0],pos[1]*1800/Math.PI);
 
         wm.update();
 
