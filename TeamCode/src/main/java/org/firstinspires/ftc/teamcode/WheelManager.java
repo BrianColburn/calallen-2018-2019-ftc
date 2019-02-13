@@ -119,6 +119,14 @@ public class WheelManager {
         return getPolPos()[1]*1800/Math.PI;
     }
 
+    public double getInches() {
+        return 10/3.533482*getPolPos()[0];
+    }
+
+    public double getCM() {
+        return 25.4/3.533482*getPolPos()[0];
+    }
+
     public double[] getPolPos() {
         double newTime = System.currentTimeMillis()/1000.;
 
