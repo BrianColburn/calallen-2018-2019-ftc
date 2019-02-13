@@ -24,7 +24,7 @@ public class WheelManager {
     private int[] encoders;
     private int[] lastEncoding;
     private final int ticks;
-    private int previousPosition;
+    private int[] previousPositions;
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -50,7 +50,7 @@ public class WheelManager {
         this.pos    = new double[] {0,0,0};
         this.axle   = axle;
         this.ticks  = ticks;
-        this.previousPosition = 0;
+        this.previousPositions = new int[mot.length];
     }
 
     /**
@@ -62,7 +62,7 @@ public class WheelManager {
     private double w(double t, double D) {
         //return -D*omega*(radius/vradius)*t;
         //System.out.printf("Old theta: %.2f, D: %.2f, t: %.2f, new theta: %.2f%n",theta,D,t,theta + D*t);
-        return D*t;
+        return radius/axle * ((mot[1].getCurrentPosition() - previousPositions[1])/ticks - (mot[3].getCurrentPosition() - previousPositions[3])/ticks);
     }
 
     /**
@@ -79,7 +79,9 @@ public class WheelManager {
             return D * omega * radius * t;
         } else {
             // (unit-less) * (length) / (time) * (length)
-            return D * (mot[1].getCurrentPosition() - previousPosition) * (360./ticks) * radius;
+            // `dS = r/2 (dRotsR + dRotsL)`
+            // `dTheta = r/d (dRotsR - dRotsL)`
+            return radius/2 * ((mot[1].getCurrentPosition() - previousPositions[1])/ticks + (mot[3].getCurrentPosition() - previousPositions[3])/ticks);
         }
     }
 
@@ -90,12 +92,12 @@ public class WheelManager {
             double[] dt = getPolPos();
             dist = dt[0];
             theta = dt[1];
-            previousPosition = mot[1].getCurrentPosition();
             time = System.currentTimeMillis() / 1000.;
             left = l * scale;
             right = r * scale;
             for (int i = 0; i < 4; i++) {
                 if (mot[i] != null) {
+                    previousPositions[i] = mot[i].getCurrentPosition();
                     mot[i].setPower(i==1||i==2?left:right);
                 }
                 /*mot[0].setPower(right);
