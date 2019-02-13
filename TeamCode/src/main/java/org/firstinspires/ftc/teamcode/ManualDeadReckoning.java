@@ -91,7 +91,7 @@ public class ManualDeadReckoning extends OpMode
         servo = hardwareMap.get(Servo.class, "ser0");
         servo.setPosition(0);
 
-        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, 1, 1120);
+        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 40.64, 1, 1120);
 
         hook  = mot[4];
 
@@ -163,7 +163,9 @@ public class ManualDeadReckoning extends OpMode
         double[] pos = wm.getPolPos();//getCartPos();
         //telemetry.addData("Position", "(%.2f, %.2f, %.2f)", pos[0], pos[1], pos[2]*180/Math.PI%360);
 
-        telemetry.addData("Position", "(%.2f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
+        telemetry.addData("Position", "(%f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
+        telemetry.addData("Corrected", "(%f)/_(%.2f)", 25.4/3.533482*pos[0],pos[1]*1800/Math.PI);
+        telemetry.addData("Inches", "(%f)/_(%.2f)", 10/3.533482*pos[0],pos[1]*1800/Math.PI);
 
         wm.update();
 
