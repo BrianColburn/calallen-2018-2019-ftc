@@ -62,7 +62,7 @@ public class WheelManager {
     private double w(double t, double D) {
         //return -D*omega*(radius/vradius)*t;
         //System.out.printf("Old theta: %.2f, D: %.2f, t: %.2f, new theta: %.2f%n",theta,D,t,theta + D*t);
-        return radius/axle * (((double)mot[1].getCurrentPosition() - previousPositions[1])/ticks - ((double)mot[3].getCurrentPosition() - previousPositions[3])/ticks);
+        return D*t;
     }
 
     /**
