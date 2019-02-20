@@ -52,7 +52,11 @@ public abstract class AbstractAutonomous extends OpMode {
 
     public void updateInfo() {
         telemetry.addData("Runtime", "%.2f", runtime.seconds());
-        telemetry.addData("Position","%.2f, %.2f", wm.getPolPos()[0], wm.getPolPos()[1]);
+        double[] pos = wm.getPolPos();
+        telemetry.addData("Position","%.2f, %.2f", pos[0], pos[1]*1800/Math.PI);
+        telemetry.addData("CM    ", "(%f)/_(%f)", wm.getCM(),360./511*pos[1]*1800/Math.PI);
+        telemetry.addData("Inches", "(%f)/_(%f)", wm.getInches(),pos[1]*1800/Math.PI);
+        telemetry.addData("Encoders", "FL: %d, BR: %d, HK: %d", mot[1].getCurrentPosition(), mot[3].getCurrentPosition(), mot[4].getCurrentPosition());
         if (detector.isFound()) {
             telemetry.addData("IsAligned", detector.getAligned()); // Is the bot aligned with the gold mineral
             telemetry.addData("X Pos", detector.getXPosition()); // Gold X pos.

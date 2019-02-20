@@ -39,11 +39,11 @@ public class AutonomousProper extends AbstractAutonomous
             //endregion
             //region State: Token
             case TOKEN: {
-                if (wm.getCM() > 40)
+                if (wm.getInches() > 40)
                 { // Stop moving and change states
                     changeState(State.DEPOT);
                     wm.setPower(0,0);
-                } else if (wm.getCM() > 35)
+                } else if (wm.getInches() > 35)
                 { // Drop the token
                     servo.setPosition(1);
                 } else { // Keep moving forward

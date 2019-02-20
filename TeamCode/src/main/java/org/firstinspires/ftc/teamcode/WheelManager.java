@@ -70,6 +70,8 @@ public class WheelManager {
      * @param t the duration of the movement
      * @param D either -1, 0, or 1
      * @return the distance traversed
+     *
+     * TODO: start using all 4 of the robot's encoders
      */
     private double d(double t, double D) {
         //System.out.printf("Old dist: %.2f, D: %.2f, t: %.2f, new dist: %.2f%n",dist,D,t,dist + D*t);
