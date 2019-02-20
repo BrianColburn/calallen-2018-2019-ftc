@@ -30,7 +30,8 @@ public class AutonomousProper extends AbstractAutonomous
                 if (runtime.seconds() <= 10) {
                     mot[4].setPower(-1);
                 } else if (getRuntime() > 11) {
-                    changeState(State.CUBE);
+                    //changeState(State.CUBE);
+                    changeState(postHang);
                     mot[4].setPower(0);
                 }
                 break;
@@ -38,11 +39,11 @@ public class AutonomousProper extends AbstractAutonomous
             //endregion
             //region State: Token
             case TOKEN: {
-                if (wm.getPolPos()[0] > 40)
+                if (wm.getCM() > 40)
                 { // Stop moving and change states
                     changeState(State.DEPOT);
                     wm.setPower(0,0);
-                } else if (wm.getPolPos()[0] > 35)
+                } else if (wm.getCM() > 35)
                 { // Drop the token
                     servo.setPosition(1);
                 } else { // Keep moving forward
