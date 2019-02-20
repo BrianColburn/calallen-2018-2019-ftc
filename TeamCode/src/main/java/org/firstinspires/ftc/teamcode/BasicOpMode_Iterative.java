@@ -29,24 +29,13 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import android.app.Activity;
-import android.content.Context;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.teamcode.BoysController;
-import org.firstinspires.ftc.teamcode.Controller;
-import org.firstinspires.ftc.teamcode.Foo;
-import org.firstinspires.ftc.teamcode.GirlsController;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -74,7 +63,6 @@ public class BasicOpMode_Iterative extends OpMode
     double hookReverseTime = 0;
     Servo[] ser;
     double servoPos = 0;
-    Foo foo;
 
     Controller c;
 

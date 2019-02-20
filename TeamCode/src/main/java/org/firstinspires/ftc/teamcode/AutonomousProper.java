@@ -5,19 +5,19 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 //@Autonomous(name="Boys Autonomous", group="Boys")
 
-public class BoysAutonomous extends AbstractAutonomous
+public class AutonomousProper extends AbstractAutonomous
 {
     @Override
     public void init() {
-        telemetry.addData("Status", "Gold Align Example");
         super.init();
+        telemetry.addData("Status", "Autonomous (Proper)");
 
         detector.alignPosOffset = 100; // How far from center frame to offset the alignment zone.
 
         //servo.scaleRange(0,.8);
         servo.setPosition(180/180.);
 
-        wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,-1);
+        wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
     }
 
 
