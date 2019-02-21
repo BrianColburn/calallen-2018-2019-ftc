@@ -27,13 +27,14 @@ public class AutonomousProper extends AbstractAutonomous
         switch (state) {
             //region State: Hanging
             case HANGING: {
-                if (runtime.seconds() <= 10) {
+                /*if (runtime.seconds() <= 10) {
                     mot[4].setPower(-1);
                 } else if (getRuntime() > 11) {
                     //changeState(State.CUBE);
                     changeState(postHang);
                     mot[4].setPower(0);
-                }
+                }*/
+                changeState(postHang);
                 break;
             }
             //endregion
@@ -56,7 +57,7 @@ public class AutonomousProper extends AbstractAutonomous
             //region State: Depot
             case DEPOT: {
                 // We need to rotate to face the crater
-                if (Math.abs(wm.getDegrees()) <= 135) {
+                if (Math.abs(wm.getDegrees()) <= 150) {
                     wm.setPower(-.4,.4);
                 }
                 // We are facing the crater
