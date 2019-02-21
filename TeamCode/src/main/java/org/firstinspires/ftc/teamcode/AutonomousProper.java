@@ -57,7 +57,7 @@ public class AutonomousProper extends AbstractAutonomous
             //region State: Depot
             case DEPOT: {
                 // We need to rotate to face the crater
-                if (Math.abs(wm.getDegrees()) <= 150) {
+                if (Math.abs(wm.getDegrees()) <= 170) {
                     wm.setPower(-.4,.4);
                 }
                 // We are facing the crater
