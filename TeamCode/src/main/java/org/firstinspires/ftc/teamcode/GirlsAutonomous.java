@@ -21,7 +21,7 @@ public class GirlsAutonomous extends AbstractAutonomous {
         //region Initialize motors and servos
         servo.setPosition(0);
 
-        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, 1);
+        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, 1, 1120);
         //endregion
     }
 
@@ -38,11 +38,11 @@ public class GirlsAutonomous extends AbstractAutonomous {
             //endregion
             //region State: Token
             case TOKEN: {
-                if (wm.getPolPos()[0] > 40)
+                if (wm.getInches() > 35)
                 { // Stop moving and change states
                     changeState(State.DEPOT);
                     wm.setPower(0,0);
-                } else if (wm.getPolPos()[0] > 35)
+                } else if (wm.getInches() > 30)
                 { // Drop the token
                     servo.setPosition(1);
                 } else { // Keep moving forward

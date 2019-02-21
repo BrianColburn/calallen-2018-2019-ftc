@@ -23,6 +23,8 @@ public class WheelManager {
     private double axle;
     private int[] encoders;
     private int[] lastEncoding;
+    private final int ticks;
+    private int[] previousPositions;
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -33,7 +35,7 @@ public class WheelManager {
      * @param omega   the radial velocity of the wheels at speed scale
      * @param scale   scaling factor
      */
-    public WheelManager(DcMotor[] mot, double radius, double omega, double axle, double scale) {
+    public WheelManager(DcMotor[] mot, double radius, double omega, double axle, double scale, final int ticks) {
         this.mot    = mot;
         this.encoders = new int[mot.length];
         this.lastEncoding = new int[encoders.length];
@@ -47,6 +49,8 @@ public class WheelManager {
         this.time   = System.currentTimeMillis()/1000.;
         this.pos    = new double[] {0,0,0};
         this.axle   = axle;
+        this.ticks  = ticks;
+        this.previousPositions = new int[mot.length];
     }
 
     /**
@@ -58,7 +62,7 @@ public class WheelManager {
     private double w(double t, double D) {
         //return -D*omega*(radius/vradius)*t;
         //System.out.printf("Old theta: %.2f, D: %.2f, t: %.2f, new theta: %.2f%n",theta,D,t,theta + D*t);
-        return D*t;
+        return radius/axle * (((double)mot[1].getCurrentPosition() - previousPositions[1])/ticks - ((double)mot[3].getCurrentPosition() - previousPositions[3])/ticks);
     }
 
     /**
@@ -66,10 +70,21 @@ public class WheelManager {
      * @param t the duration of the movement
      * @param D either -1, 0, or 1
      * @return the distance traversed
+     *
+     * TODO: start using all 4 of the robot's encoders
      */
     private double d(double t, double D) {
         //System.out.printf("Old dist: %.2f, D: %.2f, t: %.2f, new dist: %.2f%n",dist,D,t,dist + D*t);
-        return D*omega*radius*t;
+        if (ticks < 0) {
+            // (unit-less) * ((length/time)/time) * (length) * (time)
+            // (unit-less) * (length/time) * (length)
+            return D * omega * radius * t;
+        } else {
+            // (unit-less) * (length) / (time) * (length)
+            // `dS = r/2 (dRotsR + dRotsL)`
+            // `dTheta = r/d (dRotsR - dRotsL)`
+            return radius/2 * (((double)mot[1].getCurrentPosition() - previousPositions[1])/ticks + ((double)mot[3].getCurrentPosition() - previousPositions[3])/ticks);
+        }
     }
 
     public void setPower(double l, double r) {
@@ -84,6 +99,7 @@ public class WheelManager {
             right = r * scale;
             for (int i = 0; i < 4; i++) {
                 if (mot[i] != null) {
+                    previousPositions[i] = mot[i].getCurrentPosition();
                     mot[i].setPower(i==1||i==2?left:right);
                 }
                 /*mot[0].setPower(right);
@@ -103,6 +119,14 @@ public class WheelManager {
 
     public double getDegrees() {
         return getPolPos()[1]*1800/Math.PI;
+    }
+
+    public double getInches() {
+        return 10/3.533482*getPolPos()[0];
+    }
+
+    public double getCM() {
+        return 25.4/3.533482*getPolPos()[0];
     }
 
     public double[] getPolPos() {

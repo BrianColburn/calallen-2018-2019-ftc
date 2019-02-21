@@ -91,11 +91,11 @@ public class ManualDeadReckoning extends OpMode
         servo = hardwareMap.get(Servo.class, "ser0");
         servo.setPosition(0);
 
-        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, 1);
+        wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 40.64, 1, 1120);
 
         hook  = mot[4];
 
-        wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, .2);
+        //wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, .2);
 
         mot[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, .2);
@@ -153,7 +153,7 @@ public class ManualDeadReckoning extends OpMode
 
         // Send calculated power to wheels
         wm.setPower(leftPower, rightPower);
-        //hook.setPower(hookPow);
+        hook.setPower(hookPow);
         //servo.setPosition(servoPos);
 
         // Show the elapsed game time and wheel power.
@@ -164,10 +164,12 @@ public class ManualDeadReckoning extends OpMode
         //telemetry.addData("Position", "(%.2f, %.2f, %.2f)", pos[0], pos[1], pos[2]*180/Math.PI%360);
 
         telemetry.addData("Position", "(%.2f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
+        telemetry.addData("Corrected", "(%f)/_(%f)", 25.4/3.533482*pos[0],360./511*pos[1]*1800/Math.PI);
+        telemetry.addData("Inches", "(%f)/_(%f)", 10/3.533482*pos[0],pos[1]*1800/Math.PI);
 
         wm.update();
 
-        telemetry.addData("Encoders", "FR: %d, BR: %d, FL: %d, BL: %d", mot[0].getCurrentPosition(), mot[2].getCurrentPosition(), mot[1].getCurrentPosition(), mot[3].getCurrentPosition());
+        telemetry.addData("Encoders", "FL: %d, BR: %d, HK: %d", mot[1].getCurrentPosition(), mot[3].getCurrentPosition(), mot[4].getCurrentPosition());
         //telemetry.addData("Position", "(%.2f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);
         telemetry.addData("Target Position", mot[0].getTargetPosition());
     }

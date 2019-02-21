@@ -5,19 +5,19 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 //@Autonomous(name="Boys Autonomous", group="Boys")
 
-public class BoysAutonomous extends AbstractAutonomous
+public class AutonomousProper extends AbstractAutonomous
 {
     @Override
     public void init() {
-        telemetry.addData("Status", "Gold Align Example");
         super.init();
+        telemetry.addData("Status", "Autonomous (Proper)");
 
         detector.alignPosOffset = 100; // How far from center frame to offset the alignment zone.
 
         //servo.scaleRange(0,.8);
         servo.setPosition(180/180.);
 
-        wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1);
+        wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
     }
 
 
@@ -27,22 +27,24 @@ public class BoysAutonomous extends AbstractAutonomous
         switch (state) {
             //region State: Hanging
             case HANGING: {
-                if (runtime.seconds() <= 10) {
+                /*if (runtime.seconds() <= 10) {
                     mot[4].setPower(-1);
                 } else if (getRuntime() > 11) {
-                    changeState(State.CUBE);
+                    //changeState(State.CUBE);
+                    changeState(postHang);
                     mot[4].setPower(0);
-                }
+                }*/
+                changeState(postHang);
                 break;
             }
             //endregion
             //region State: Token
             case TOKEN: {
-                if (wm.getPolPos()[0] > 40)
+                if (wm.getInches() > 40)
                 { // Stop moving and change states
                     changeState(State.DEPOT);
                     wm.setPower(0,0);
-                } else if (wm.getPolPos()[0] > 35)
+                } else if (wm.getInches() > 35)
                 { // Drop the token
                     servo.setPosition(1);
                 } else { // Keep moving forward
@@ -54,6 +56,14 @@ public class BoysAutonomous extends AbstractAutonomous
             //endregion
             //region State: Depot
             case DEPOT: {
+                // We need to rotate to face the crater
+                if (Math.abs(wm.getDegrees()) <= 150) {
+                    wm.setPower(-.4,.4);
+                }
+                // We are facing the crater
+                else if (Math.abs(wm.getDegrees()) > 19) {
+                    changeState(State.TRANSIENT);
+                }
                 break;
             }
             //endregion
