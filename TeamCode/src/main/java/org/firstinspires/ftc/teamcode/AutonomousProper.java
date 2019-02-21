@@ -71,7 +71,7 @@ public class AutonomousProper extends AbstractAutonomous
             case TRANSIENT: {
                 switch (stateHistory.get(1)) {
                     case DEPOT: {
-                        if (wm.getPolPos()[0] < 350) {
+                        if (wm.getInches() < 9*12+40) {
                             wm.setPower(1, 1);
                         } else {
                             wm.setPower(0,0);

@@ -101,6 +101,8 @@ public abstract class AbstractAutonomous extends OpMode {
         for (int i=0;i<mot.length;i++) {
             try {
                 mot[i] = hardwareMap.get(DcMotor.class, "mot" + i);
+                mot[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                mot[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             } catch (IllegalArgumentException e){
                 telemetry.addData("mot"+i+" is null","");
             }
