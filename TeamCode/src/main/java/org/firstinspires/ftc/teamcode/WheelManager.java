@@ -4,6 +4,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.units.Distance;
+
 import java.util.ArrayList;
 
 /**
@@ -25,6 +28,8 @@ public class WheelManager {
     private int[] lastEncoding;
     private final int ticks;
     private int[] previousPositions;
+    private double previousDist;
+    Telemetry telemetry;
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -108,6 +113,13 @@ public class WheelManager {
                 mot[3].setPower(right);*/
             }
         }
+    }
+
+    public boolean moveAnother(Distance distanceToMove, long stateIterations) {
+        if (stateIterations == 0) {
+            previousDist = getCM();
+        }
+        return distanceToMove.toCM() > getCM() - previousDist;
     }
 
     public double[] getICCPos() {

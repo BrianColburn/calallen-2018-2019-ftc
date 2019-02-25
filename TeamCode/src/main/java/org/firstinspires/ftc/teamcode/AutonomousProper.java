@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.units.Foot;
+
 
 //@Autonomous(name="Boys Autonomous", group="Boys")
 
@@ -18,6 +20,7 @@ public class AutonomousProper extends AbstractAutonomous
         servo.setPosition(180/180.);
 
         wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
+        wm.telemetry = telemetry;
     }
 
 
@@ -71,7 +74,7 @@ public class AutonomousProper extends AbstractAutonomous
             case TRANSIENT: {
                 switch (stateHistory.get(1)) {
                     case DEPOT: {
-                        if (wm.getInches() < 9*12+40) {
+                        if (wm.moveAnother(new Foot(9), stateIterations)) {
                             wm.setPower(1, 1);
                         } else {
                             wm.setPower(0,0);
