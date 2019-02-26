@@ -47,11 +47,11 @@ public class AutonomousProper extends AbstractAutonomous
             //endregion
             //region State: Token
             case TOKEN: {
-                if (wm.getInches() > 40)
+                if (wm.getInches() > 50)
                 { // Stop moving and change states
                     changeState(State.DEPOT);
                     wm.setPower(0,0);
-                } else if (wm.getInches() > 35)
+                } else if (wm.getInches() > 45)
                 { // Drop the token
                     servo.setPosition(1);
                 } else { // Keep moving forward
@@ -64,7 +64,7 @@ public class AutonomousProper extends AbstractAutonomous
             //region State: Depot
             case DEPOT: {
                 // We need to rotate to face the crater
-                if (Math.abs(wm.getDegrees()) <= 170) {
+                if (Math.abs(wm.getDegrees()) <= 160) {
                     wm.setPower(-.4,.4);
                 }
                 // We are facing the crater
