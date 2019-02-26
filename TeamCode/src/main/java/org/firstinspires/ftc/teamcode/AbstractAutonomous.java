@@ -50,6 +50,7 @@ public abstract class AbstractAutonomous extends OpMode {
     //endregion
 
     public void changeState(State s) {
+        logger.info(String.format("Changing from state %s to state %s, history: %s", state, s, stateHistory));
         state = s;
         stateHistory.push(state);
         stateIterations = 0;

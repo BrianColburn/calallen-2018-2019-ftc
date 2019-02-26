@@ -41,19 +41,32 @@ public class AutonomousProper extends AbstractAutonomous
                     changeState(postHang);
                     mot[4].setPower(0);
                 }*/
-                changeState(postHang);
+                changeState(State.CUBE);
+                //changeState(postHang);
                 break;
             }
             //endregion
             //region State: Token
             case TOKEN: {
-                if (wm.getInches() > 50)
+                if (wm.getInches() > 50 && wm.getInches() < 60)
                 { // Stop moving and change states
-                    changeState(State.DEPOT);
-                    wm.setPower(0,0);
-                } else if (wm.getInches() > 45)
+                    if (!direction) {
+                        changeState(State.DEPOT);
+                        wm.setPower(0, 0);
+                    } else {
+                        servo.setPosition(1);
+                    }
+                } else if (wm.getInches() > 45 && wm.getInches() < 55)
                 { // Drop the token
-                    servo.setPosition(1);
+                    if (!direction) {
+                        servo.setPosition(1);
+                    } else {
+                        changeState(State.DEPOT);
+                        wm.setPower(0, 0);
+                    }
+                } else if (wm.getInches() > 60) {
+                    wm.setPower(-.4,-.4);
+                    direction = true;
                 } else { // Keep moving forward
                     wm.setPower(.4,.4);
                     break;
