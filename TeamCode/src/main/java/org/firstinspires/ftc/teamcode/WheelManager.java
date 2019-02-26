@@ -30,6 +30,8 @@ public class WheelManager {
     private int[] previousPositions;
     private double previousDist;
     Telemetry telemetry;
+    private long lastID;
+    private Random rand = new Random();
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -120,6 +122,20 @@ public class WheelManager {
             previousDist = getCM();
         }
         return distanceToMove.toCM() > getCM() - previousDist;
+    }
+
+    public long  callAfter(Distance distanceToMove, Callable c, long id) {
+        if (lastID == null || lastID != id) {
+            previousDist = getCM();
+            lastID = id;
+        }
+        if (distanceToMove.toCM() > getCM() - previousDist) {
+            return id;
+        } else {
+            c.call();
+        }
+
+        return rand.nextLong();
     }
 
     public double[] getICCPos() {
