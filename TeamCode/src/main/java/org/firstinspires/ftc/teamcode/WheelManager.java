@@ -8,6 +8,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.units.Distance;
 
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * Created by Brian Colburn
@@ -29,8 +31,8 @@ public class WheelManager {
     private final int ticks;
     private int[] previousPositions;
     private double previousDist;
-    Telemetry telemetry;
-    private long lastID;
+    Logger logger;
+    private long lastID = -1;
     private Random rand = new Random();
 
     /**
@@ -124,18 +126,19 @@ public class WheelManager {
         return distanceToMove.toCM() > getCM() - previousDist;
     }
 
-    public long  callAfter(Distance distanceToMove, Callable c, long id) {
-        if (lastID == null || lastID != id) {
+    public long  callAfter(Distance distanceToMove, long id, Runnable c) {
+        if (lastID == -1 || lastID != id) {
             previousDist = getCM();
             lastID = id;
+            logger.info(String.format("New call to callAfter, pDist: %.1f", previousDist));
         }
         if (distanceToMove.toCM() > getCM() - previousDist) {
             return id;
         } else {
-            c.call();
+            logger.info(String.format("Calling c at distToMove: %.1f, currentDist: %.1f, totalDist: %.1f", distanceToMove.toCM(), getCM()-previousDist, getCM()));
+            c.run();
+            return rand.nextLong();
         }
-
-        return rand.nextLong();
     }
 
     public double[] getICCPos() {

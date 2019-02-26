@@ -82,7 +82,7 @@ public abstract class AbstractAutonomous extends OpMode {
     @Override
     public void init() {
         try {
-            logger.addHandler(new FileHandler());
+            logger.addHandler(new FileHandler("/storage/emulated/0/AALog%u.txt"));
         } catch (IOException e) {
             e.printStackTrace();
             telemetry.addData("UNABLE TO CREATE FILE HANDLER",e.getMessage());

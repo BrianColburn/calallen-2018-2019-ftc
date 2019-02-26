@@ -4,11 +4,15 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.units.Foot;
 
+import java.util.logging.Handler;
+
 
 //@Autonomous(name="Boys Autonomous", group="Boys")
 
 public class AutonomousProper extends AbstractAutonomous
 {
+    long id = 0;
+
     @Override
     public void init() {
         super.init();
@@ -20,7 +24,7 @@ public class AutonomousProper extends AbstractAutonomous
         servo.setPosition(180/180.);
 
         wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
-        wm.telemetry = telemetry;
+        wm.logger = logger;
     }
 
 
@@ -74,12 +78,22 @@ public class AutonomousProper extends AbstractAutonomous
             case TRANSIENT: {
                 switch (stateHistory.get(1)) {
                     case DEPOT: {
-                        if (wm.moveAnother(new Foot(9), stateIterations)) {
+                        /*if (wm.moveAnother(new Foot(9), stateIterations)) {
                             wm.setPower(1, 1);
                         } else {
                             wm.setPower(0,0);
                             changeState(State.CRATER);
-                        }
+                        }*/
+                        logger.info("callAfter");
+                        wm.setPower(1,1);
+                        id = wm.callAfter(new Foot(9), id, new Runnable() {
+                            @Override
+                            public void run() {
+                                wm.setPower(0,0);
+                                changeState(State.CRATER);
+                                logger.info("Changed state");
+                            }
+                        });
                         break;
                     }
                     case CRATER: {
@@ -212,6 +226,9 @@ public class AutonomousProper extends AbstractAutonomous
         wm.setPower(0,0);
         servo.setPosition(1);
         //servo.setPosition(15/180);
+        for (Handler h : logger.getHandlers()) {
+            h.close();
+        }
     }
 
 }

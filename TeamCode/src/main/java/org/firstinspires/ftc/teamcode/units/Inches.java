@@ -14,7 +14,7 @@ public class Inches implements Distance {
 
     @Override
     public double toCM() {
-        return value()*0.39370079;
+        return value()*2.54;
     }
 
     @Override
