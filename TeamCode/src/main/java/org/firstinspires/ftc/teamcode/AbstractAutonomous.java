@@ -132,6 +132,8 @@ public abstract class AbstractAutonomous extends OpMode {
 
         ser[0] = hardwareMap.get(Servo.class, "ser0");
         ser[1] = hardwareMap.get(Servo.class, "ser1");
+        ser[0].setPosition(0);
+        ser[1].setPosition(1);
         //endregion
     }
 

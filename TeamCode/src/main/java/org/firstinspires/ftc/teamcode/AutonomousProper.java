@@ -55,12 +55,12 @@ public class AutonomousProper extends AbstractAutonomous
                         changeState(State.DEPOT);
                         wm.setPower(0, 0);
                     } else {
-                        ser[0].setPosition(1);
+                        ser[0].setPosition(0);
                     }
                 } else if (wm.getInches() > 45 && wm.getInches() < 55)
                 { // Drop the token
                     if (!direction) {
-                        ser[0].setPosition(1);
+                        ser[0].setPosition(0);
                     } else {
                         changeState(State.DEPOT);
                         wm.setPower(0, 0);
@@ -154,6 +154,7 @@ public class AutonomousProper extends AbstractAutonomous
                         }*/
                             telemetry.addLine("Stop!");
                             ser[1].setPosition(0 / 180.);
+                            ser[0].setPosition(1);
                             try {
                                 Thread.sleep(200);
                             } catch (InterruptedException e) {
@@ -167,19 +168,12 @@ public class AutonomousProper extends AbstractAutonomous
                             mot[2].setPower(.4);//125);*/
                             long oldID = id;
                             while (oldID==id) {
-                                id = wm.callAfter(new Centimeter(dist), id, null);
+                                id = wm.callAfter(new Centimeter(2*dist), id, null);
                             }
 
-                            //while (detector.isFound());
-                            try {
-                                //Thread.sleep(1200);
-                                ser[1].setPosition(1);
-                                Thread.sleep(1500);
-                                wm.setPower(0,0);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-
+                            ser[0].setPosition(1);
+                            ser[1].setPosition(0);
+                            wm.setPower(0,0);
                             changeState(postHang);
                         }
                     }
