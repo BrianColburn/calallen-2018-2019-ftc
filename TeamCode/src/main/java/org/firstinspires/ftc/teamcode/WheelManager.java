@@ -136,7 +136,9 @@ public class WheelManager {
             return id;
         } else {
             logger.info(String.format("Calling c at distToMove: %.1f, currentDist: %.1f, totalDist: %.1f", distanceToMove.toCM(), getCM()-previousDist, getCM()));
-            c.run();
+            if (c!=null) {
+                c.run();
+            }
             return rand.nextLong();
         }
     }

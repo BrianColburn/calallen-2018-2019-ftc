@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.units.Centimeter;
 import org.firstinspires.ftc.teamcode.units.Foot;
 
 import java.util.logging.Handler;
@@ -21,7 +22,7 @@ public class AutonomousProper extends AbstractAutonomous
         detector.alignPosOffset = 100; // How far from center frame to offset the alignment zone.
 
         //servo.scaleRange(0,.8);
-        servo.setPosition(180/180.);
+        ser[0].setPosition(180/180.);
 
         wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
         wm.logger = logger;
@@ -54,12 +55,12 @@ public class AutonomousProper extends AbstractAutonomous
                         changeState(State.DEPOT);
                         wm.setPower(0, 0);
                     } else {
-                        servo.setPosition(1);
+                        ser[0].setPosition(1);
                     }
                 } else if (wm.getInches() > 45 && wm.getInches() < 55)
                 { // Drop the token
                     if (!direction) {
-                        servo.setPosition(1);
+                        ser[0].setPosition(1);
                     } else {
                         changeState(State.DEPOT);
                         wm.setPower(0, 0);
@@ -152,23 +153,29 @@ public class AutonomousProper extends AbstractAutonomous
                             m.setPower(0);
                         }*/
                             telemetry.addLine("Stop!");
-                            servo.setPosition(0 / 180.);
+                            ser[1].setPosition(0 / 180.);
                             try {
                                 Thread.sleep(200);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
+                            double dist = detector.getDistances()[ix];
                             wm.setPower(.4, .4);
                             /*mot[0].setPower(-.4);//125);
                             mot[3].setPower(-.4);//125);
                             mot[1].setPower(.4);//125);
                             mot[2].setPower(.4);//125);*/
+                            long oldID = id;
+                            while (oldID==id) {
+                                id = wm.callAfter(new Centimeter(dist), id, null);
+                            }
 
                             //while (detector.isFound());
                             try {
-                                Thread.sleep(1200);
-                                servo.setPosition(1);
+                                //Thread.sleep(1200);
+                                ser[1].setPosition(1);
                                 Thread.sleep(1500);
+                                wm.setPower(0,0);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -237,7 +244,8 @@ public class AutonomousProper extends AbstractAutonomous
     public void stop() {
         detector.disable();
         wm.setPower(0,0);
-        servo.setPosition(1);
+        ser[0].setPosition(1);
+        ser[1].setPosition(0);
         //servo.setPosition(15/180);
         for (Handler h : logger.getHandlers()) {
             h.close();

@@ -25,7 +25,7 @@ public abstract class AbstractAutonomous extends OpMode {
     // ~170px, 100px at 21 cm
     // 85px by 115px at 30 cm
     public DcMotor[] mot = new DcMotor[5];
-    public Servo servo;
+    public Servo[] ser = new Servo[2];
     public WheelManager wm;
     public boolean direction = false;
     public double angleOffset = 0;
@@ -70,6 +70,7 @@ public abstract class AbstractAutonomous extends OpMode {
         logAndAddData(Level.INFO, "CM    ", "(%f)/_(%f)", wm.getCM(),wm.getDegrees());
         logAndAddData(Level.INFO, "Inches", "(%f)/_(%f)", wm.getInches(),wm.getDegrees());
         logAndAddData(Level.INFO, "Encoders", "FL: %d, BR: %d, HK: %d", mot[1].getCurrentPosition(), mot[3].getCurrentPosition(), mot[4].getCurrentPosition());
+        logAndAddData(Level.INFO, "WM","%s",wm);
         if (detector.isFound()) {
             logAndAddData(Level.INFO, "IsAligned", "%d", detector.getAligned()); // Is the bot aligned with the gold mineral
             logAndAddData(Level.INFO, "X Pos", "%.2f", detector.getXPosition()); // Gold X pos.
@@ -129,7 +130,8 @@ public abstract class AbstractAutonomous extends OpMode {
         mot[0].setDirection(DcMotor.Direction.REVERSE);
         mot[3].setDirection(DcMotor.Direction.REVERSE);
 
-        servo = hardwareMap.get(Servo.class, "ser0");
+        ser[0] = hardwareMap.get(Servo.class, "ser0");
+        ser[1] = hardwareMap.get(Servo.class, "ser1");
         //endregion
     }
 
