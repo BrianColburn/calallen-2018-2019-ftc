@@ -14,6 +14,8 @@ public class AutonomousProper extends AbstractAutonomous
 {
     long id = 0;
 
+    boolean noCube = false;
+
     @Override
     public void init() {
         super.init();
@@ -42,8 +44,11 @@ public class AutonomousProper extends AbstractAutonomous
                     changeState(postHang);
                     mot[4].setPower(0);
                 }*/
-                changeState(State.CUBE);
-                //changeState(postHang);
+                if (noCube) {
+                    changeState(postHang);
+                } else {
+                    changeState(State.CUBE);
+                }
                 break;
             }
             //endregion
