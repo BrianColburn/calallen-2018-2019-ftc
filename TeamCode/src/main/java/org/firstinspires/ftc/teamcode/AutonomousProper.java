@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
 import org.firstinspires.ftc.teamcode.units.Centimeter;
 import org.firstinspires.ftc.teamcode.units.Foot;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.logging.Handler;
 
 
@@ -14,7 +13,6 @@ import java.util.logging.Handler;
 public class AutonomousProper extends AbstractAutonomous
 {
     long id = 0;
-    boolean doCube = false;
 
     @Override
     public void init() {
@@ -28,17 +26,6 @@ public class AutonomousProper extends AbstractAutonomous
 
         wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
         wm.logger = logger;
-
-        try {
-            HashMap<String, String> map = ChangeSettings.getSettings();
-            doCube = Boolean.parseBoolean(map.get("doCube"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -55,11 +42,8 @@ public class AutonomousProper extends AbstractAutonomous
                     changeState(postHang);
                     mot[4].setPower(0);
                 }*/
-                if (doCube) {
-                    changeState(State.CUBE);
-                } else {
-                    changeState(postHang);
-                }
+                changeState(State.CUBE);
+                //changeState(postHang);
                 break;
             }
             //endregion
