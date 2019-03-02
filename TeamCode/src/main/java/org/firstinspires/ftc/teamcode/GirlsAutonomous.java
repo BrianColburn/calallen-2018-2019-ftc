@@ -19,7 +19,7 @@ public class GirlsAutonomous extends AbstractAutonomous {
         super.init();
 
         //region Initialize motors and servos
-        servo.setPosition(0);
+        ser[0].setPosition(0);
 
         wm = new WheelManager(mot, 10/2, (2*Math.PI)/2.5, 37.5, 1, 1120);
         //endregion
@@ -44,7 +44,7 @@ public class GirlsAutonomous extends AbstractAutonomous {
                     wm.setPower(0,0);
                 } else if (wm.getInches() > 30)
                 { // Drop the token
-                    servo.setPosition(1);
+                    ser[0].setPosition(1);
                 } else { // Keep moving forward
                     wm.setPower(.4,.4);
                     break;
@@ -121,7 +121,7 @@ public class GirlsAutonomous extends AbstractAutonomous {
                     } else { // Boys, we gottem.
                         wm.setPower(0,0);
                         telemetry.addData("Action", "CHARGE!");
-                        servo.setPosition(180 / 180.);
+                        ser[0].setPosition(180 / 180.);
                         try {
                             Thread.sleep(200);
                         } catch (InterruptedException e) {
@@ -132,7 +132,7 @@ public class GirlsAutonomous extends AbstractAutonomous {
                         //while (detector.isFound());
                         try {
                             Thread.sleep(1200);
-                            servo.setPosition(0);
+                            ser[0].setPosition(0);
                             Thread.sleep(1500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -182,7 +182,7 @@ public class GirlsAutonomous extends AbstractAutonomous {
     @Override
     public void stop() {
         wm.setPower(0,0);
-        servo.setPosition((15)/180);
+        ser[0].setPosition((15)/180);
         detector.disable();
     }
 
