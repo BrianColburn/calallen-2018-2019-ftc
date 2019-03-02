@@ -2,11 +2,20 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.units.Centimeter;
+import org.firstinspires.ftc.teamcode.units.Foot;
+
+import java.util.logging.Handler;
+
 
 //@Autonomous(name="Boys Autonomous", group="Boys")
 
 public class AutonomousProper extends AbstractAutonomous
 {
+    long id = 0;
+
+    boolean noCube = false;
+
     @Override
     public void init() {
         super.init();
@@ -15,9 +24,10 @@ public class AutonomousProper extends AbstractAutonomous
         detector.alignPosOffset = 100; // How far from center frame to offset the alignment zone.
 
         //servo.scaleRange(0,.8);
-        servo.setPosition(180/180.);
+        ser[0].setPosition(180/180.);
 
         wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
+        wm.logger = logger;
     }
 
 
@@ -34,19 +44,35 @@ public class AutonomousProper extends AbstractAutonomous
                     changeState(postHang);
                     mot[4].setPower(0);
                 }*/
-                changeState(postHang);
+                if (noCube) {
+                    changeState(postHang);
+                } else {
+                    changeState(State.CUBE);
+                }
                 break;
             }
             //endregion
             //region State: Token
             case TOKEN: {
-                if (wm.getInches() > 40)
+                if (wm.getInches() > 50 && wm.getInches() < 60)
                 { // Stop moving and change states
-                    changeState(State.DEPOT);
-                    wm.setPower(0,0);
-                } else if (wm.getInches() > 35)
+                    if (!direction) {
+                        changeState(State.DEPOT);
+                        wm.setPower(0, 0);
+                    } else {
+                        ser[0].setPosition(0);
+                    }
+                } else if (wm.getInches() > 45 && wm.getInches() < 55)
                 { // Drop the token
-                    servo.setPosition(1);
+                    if (!direction) {
+                        ser[0].setPosition(0);
+                    } else {
+                        changeState(State.DEPOT);
+                        wm.setPower(0, 0);
+                    }
+                } else if (wm.getInches() > 60) {
+                    wm.setPower(-.4,-.4);
+                    direction = true;
                 } else { // Keep moving forward
                     wm.setPower(.4,.4);
                     break;
@@ -57,7 +83,7 @@ public class AutonomousProper extends AbstractAutonomous
             //region State: Depot
             case DEPOT: {
                 // We need to rotate to face the crater
-                if (Math.abs(wm.getDegrees()) <= 150) {
+                if (Math.abs(wm.getDegrees()) <= 160) {
                     wm.setPower(-.4,.4);
                 }
                 // We are facing the crater
@@ -71,12 +97,22 @@ public class AutonomousProper extends AbstractAutonomous
             case TRANSIENT: {
                 switch (stateHistory.get(1)) {
                     case DEPOT: {
-                        if (wm.getPolPos()[0] < 350) {
+                        /*if (wm.moveAnother(new Foot(9), stateIterations)) {
                             wm.setPower(1, 1);
                         } else {
                             wm.setPower(0,0);
                             changeState(State.CRATER);
-                        }
+                        }*/
+                        logger.info("callAfter");
+                        wm.setPower(1,1);
+                        id = wm.callAfter(new Foot(9), id, new Runnable() {
+                            @Override
+                            public void run() {
+                                wm.setPower(0,0);
+                                changeState(State.CRATER);
+                                logger.info("Changed state");
+                            }
+                        });
                         break;
                     }
                     case CRATER: {
@@ -122,27 +158,27 @@ public class AutonomousProper extends AbstractAutonomous
                             m.setPower(0);
                         }*/
                             telemetry.addLine("Stop!");
-                            servo.setPosition(0 / 180.);
+                            ser[1].setPosition(0 / 180.);
+                            ser[0].setPosition(1);
                             try {
                                 Thread.sleep(200);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
+                            double dist = detector.getDistances()[ix];
                             wm.setPower(.4, .4);
                             /*mot[0].setPower(-.4);//125);
                             mot[3].setPower(-.4);//125);
                             mot[1].setPower(.4);//125);
                             mot[2].setPower(.4);//125);*/
-
-                            //while (detector.isFound());
-                            try {
-                                Thread.sleep(1200);
-                                servo.setPosition(1);
-                                Thread.sleep(1500);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                            long oldID = id;
+                            while (oldID==id) {
+                                id = wm.callAfter(new Centimeter(2*dist), id, null);
                             }
 
+                            ser[0].setPosition(1);
+                            ser[1].setPosition(0);
+                            wm.setPower(0,0);
                             changeState(postHang);
                         }
                     }
@@ -207,8 +243,12 @@ public class AutonomousProper extends AbstractAutonomous
     public void stop() {
         detector.disable();
         wm.setPower(0,0);
-        servo.setPosition(1);
+        ser[0].setPosition(1);
+        ser[1].setPosition(0);
         //servo.setPosition(15/180);
+        for (Handler h : logger.getHandlers()) {
+            h.close();
+        }
     }
 
 }

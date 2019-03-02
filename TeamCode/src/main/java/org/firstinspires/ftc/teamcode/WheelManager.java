@@ -4,7 +4,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.units.Distance;
+
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * Created by Brian Colburn
@@ -25,6 +30,10 @@ public class WheelManager {
     private int[] lastEncoding;
     private final int ticks;
     private int[] previousPositions;
+    private double previousDist;
+    Logger logger;
+    private long lastID = -1;
+    private Random rand = new Random();
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -107,6 +116,30 @@ public class WheelManager {
                 mot[2].setPower(left);
                 mot[3].setPower(right);*/
             }
+        }
+    }
+
+    public boolean moveAnother(Distance distanceToMove, long stateIterations) {
+        if (stateIterations == 0) {
+            previousDist = getCM();
+        }
+        return distanceToMove.toCM() > getCM() - previousDist;
+    }
+
+    public long  callAfter(Distance distanceToMove, long id, Runnable c) {
+        if (lastID == -1 || lastID != id) {
+            previousDist = getCM();
+            lastID = id;
+            logger.info(String.format("New call to callAfter, pDist: %.1f", previousDist));
+        }
+        if (distanceToMove.toCM() > getCM() - previousDist) {
+            return id;
+        } else {
+            logger.info(String.format("Calling c at distToMove: %.1f, currentDist: %.1f, totalDist: %.1f", distanceToMove.toCM(), getCM()-previousDist, getCM()));
+            if (c!=null) {
+                c.run();
+            }
+            return rand.nextLong();
         }
     }
 

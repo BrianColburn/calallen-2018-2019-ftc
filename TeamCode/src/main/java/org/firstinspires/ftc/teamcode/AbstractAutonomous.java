@@ -7,10 +7,17 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.io.IOException;
 import java.util.LinkedList;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class AbstractAutonomous extends OpMode {
     public ElapsedTime runtime = new ElapsedTime();
+    public Logger logger = Logger.getLogger("AALogger");
 
     //region Gold Detector and Motor variables
     public GoldAlignDetector detector;
@@ -18,7 +25,7 @@ public abstract class AbstractAutonomous extends OpMode {
     // ~170px, 100px at 21 cm
     // 85px by 115px at 30 cm
     public DcMotor[] mot = new DcMotor[5];
-    public Servo servo;
+    public Servo[] ser = new Servo[2];
     public WheelManager wm;
     public boolean direction = false;
     public double angleOffset = 0;
@@ -43,6 +50,7 @@ public abstract class AbstractAutonomous extends OpMode {
     //endregion
 
     public void changeState(State s) {
+        logger.info(String.format("Changing from state %s to state %s, history: %s", state, s, stateHistory));
         state = s;
         stateHistory.push(state);
         stateIterations = 0;
@@ -50,25 +58,37 @@ public abstract class AbstractAutonomous extends OpMode {
     }
     //endregion
 
+    public Telemetry.Item logAndAddData(Level logLevel, String caption, String format, Object... args) {
+        logger.log(logLevel, String.format(caption +": "+ format, args));
+        return telemetry.addData(caption, format, args);
+    }
+
     public void updateInfo() {
-        telemetry.addData("Runtime", "%.2f", runtime.seconds());
+        logAndAddData(Level.INFO, "Runtime", "%.2f", runtime.seconds());
         double[] pos = wm.getPolPos();
-        telemetry.addData("Position","%.2f, %.2f", pos[0], pos[1]*1800/Math.PI);
-        telemetry.addData("CM    ", "(%f)/_(%f)", wm.getCM(),360./511*pos[1]*1800/Math.PI);
-        telemetry.addData("Inches", "(%f)/_(%f)", wm.getInches(),pos[1]*1800/Math.PI);
-        telemetry.addData("Encoders", "FL: %d, BR: %d, HK: %d", mot[1].getCurrentPosition(), mot[3].getCurrentPosition(), mot[4].getCurrentPosition());
+        logAndAddData(Level.INFO, "Position","%.2f, %.2f", pos[0], pos[1]*1800/Math.PI);
+        logAndAddData(Level.INFO, "CM    ", "(%f)/_(%f)", wm.getCM(),wm.getDegrees());
+        logAndAddData(Level.INFO, "Inches", "(%f)/_(%f)", wm.getInches(),wm.getDegrees());
+        logAndAddData(Level.INFO, "Encoders", "FL: %d, BR: %d, HK: %d", mot[1].getCurrentPosition(), mot[3].getCurrentPosition(), mot[4].getCurrentPosition());
+        logAndAddData(Level.INFO, "WM","%s",wm);
         if (detector.isFound()) {
-            telemetry.addData("IsAligned", detector.getAligned()); // Is the bot aligned with the gold mineral
-            telemetry.addData("X Pos", detector.getXPosition()); // Gold X pos.
-            telemetry.addData("Y Pos", detector.getYPosition());
-            telemetry.addData("Dimensions", "%d, %d", detector.getRect().width, detector.getRect().height);
-            telemetry.addData("Distance", "%.2f, %.2f, %.2f", detector.getDistances()[0], detector.getDistances()[1], detector.getDistances()[2]);
-            telemetry.addData("Variance", "%.2f, %.2f", detector.getDistances()[2]-detector.getDistances()[0], (detector.getDistances()[2] + detector.getDistances()[0])/2);
+            logAndAddData(Level.INFO, "IsAligned", "%d", detector.getAligned()); // Is the bot aligned with the gold mineral
+            logAndAddData(Level.INFO, "X Pos", "%.2f", detector.getXPosition()); // Gold X pos.
+            logAndAddData(Level.INFO, "Y Pos", "%.2f", detector.getYPosition());
+            logAndAddData(Level.INFO, "Dimensions", "%d, %d", detector.getRect().width, detector.getRect().height);
+            logAndAddData(Level.INFO, "Distance", "%.2f, %.2f, %.2f", detector.getDistances()[0], detector.getDistances()[1], detector.getDistances()[2]);
+            logAndAddData(Level.INFO, "Variance", "%.2f, %.2f", detector.getDistances()[2]-detector.getDistances()[0], (detector.getDistances()[2] + detector.getDistances()[0])/2);
         }
     }
 
     @Override
     public void init() {
+        try {
+            logger.addHandler(new FileHandler("/storage/emulated/0/AALog%u.txt"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            telemetry.addData("UNABLE TO CREATE FILE HANDLER",e.getMessage());
+        }
 
         //region Initialize State Machine
         stateHistory.push(State.OFF);
@@ -101,6 +121,8 @@ public abstract class AbstractAutonomous extends OpMode {
         for (int i=0;i<mot.length;i++) {
             try {
                 mot[i] = hardwareMap.get(DcMotor.class, "mot" + i);
+                mot[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                mot[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             } catch (IllegalArgumentException e){
                 telemetry.addData("mot"+i+" is null","");
             }
@@ -108,7 +130,10 @@ public abstract class AbstractAutonomous extends OpMode {
         mot[0].setDirection(DcMotor.Direction.REVERSE);
         mot[3].setDirection(DcMotor.Direction.REVERSE);
 
-        servo = hardwareMap.get(Servo.class, "ser0");
+        ser[0] = hardwareMap.get(Servo.class, "ser0");
+        ser[1] = hardwareMap.get(Servo.class, "ser1");
+        ser[0].setPosition(0);
+        ser[1].setPosition(1);
         //endregion
     }
 
