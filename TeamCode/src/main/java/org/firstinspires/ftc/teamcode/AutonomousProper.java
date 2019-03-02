@@ -10,7 +10,7 @@ import java.util.logging.Handler;
 
 //@Autonomous(name="Boys Autonomous", group="Boys")
 
-public class AutonomousProper extends AbstractAutonomous
+public abstract class AutonomousProper extends AbstractAutonomous
 {
     long id = 0;
 
@@ -29,6 +29,8 @@ public class AutonomousProper extends AbstractAutonomous
         wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
         wm.logger = logger;
     }
+
+    public abstract void craterLoop();
 
 
     @Override
@@ -116,7 +118,7 @@ public class AutonomousProper extends AbstractAutonomous
                         break;
                     }
                     case CRATER: {
-                        // head to the depot
+                        craterLoop();
                         break;
                     }
                     default: {

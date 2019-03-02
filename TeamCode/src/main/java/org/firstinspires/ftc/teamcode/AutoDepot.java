@@ -9,4 +9,9 @@ public class AutoDepot extends AutonomousProper {
         super.init();
         postHang = State.TOKEN;
     }
+
+    @Override
+    public void craterLoop() {
+        changeState(State.OFF);
+    }
 }

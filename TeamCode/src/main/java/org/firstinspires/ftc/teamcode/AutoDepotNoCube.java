@@ -10,4 +10,9 @@ public class AutoDepotNoCube extends AutonomousProper {
         postHang = State.TOKEN;
         noCube = true;
     }
+
+    @Override
+    public void craterLoop() {
+        changeState(State.OFF);
+    }
 }
