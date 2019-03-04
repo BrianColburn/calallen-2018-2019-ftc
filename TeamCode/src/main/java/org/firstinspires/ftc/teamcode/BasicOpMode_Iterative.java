@@ -37,6 +37,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import java8.util.Optional;
+
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -57,8 +62,8 @@ public class BasicOpMode_Iterative extends OpMode
     // Declare OpMode members.
     SensorManager sensorManager;
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor[] mot = new DcMotor[8];
-    DcMotor hook;
+    private List<Optional<DcMotor>> mot = new ArrayList<>();
+    Optional<DcMotor> hook;
     int hookDir = 1;
     double hookReverseTime = 0;
     Servo[] ser;
@@ -85,14 +90,10 @@ public class BasicOpMode_Iterative extends OpMode
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        for (int i=0;i<mot.length;i++) {
-            try {
-                mot[i] = hardwareMap.get(DcMotor.class, "mot" + i);
-            } catch (IllegalArgumentException e){
-                telemetry.addData("mot"+i+" is null","");
-            }
+        for (int i=0;i<8;i++) {
+            mot.add(Optional.ofNullable(hardwareMap.tryGet(DcMotor.class, "mot"+i)));
         }
-        hook  = mot[4];
+        hook  = mot.get(4);
         for (int i=0;i<ser.length;i++) {
             try {
                 ser[i] = hardwareMap.get(Servo.class, "ser"+i);
@@ -107,8 +108,8 @@ public class BasicOpMode_Iterative extends OpMode
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        mot[0].setDirection(DcMotor.Direction.REVERSE);
-        mot[3].setDirection(DcMotor.Direction.REVERSE);
+        mot.get(0).ifPresent(m -> m.setDirection(DcMotor.Direction.REVERSE));
+        mot.get(3).ifPresent(m -> m.setDirection(DcMotor.Direction.REVERSE));
 
         /*foo = new Foo(telemetry);
         sensorManager = (SensorManager)new Activity().getSystemService(Context.SENSOR_SERVICE);
@@ -160,30 +161,26 @@ public class BasicOpMode_Iterative extends OpMode
         servoPos = c.servo_pos();
 
         // Send calculated power to wheels
-        mot[1].setPower(leftPower);
-        mot[2].setPower(leftPower);
-        mot[0].setPower(rightPower);
-        mot[3].setPower(rightPower);
-        if (hook != null) hook.setPower(hookPow);
+        mot.get(1).ifPresent(m -> m.setPower(leftPower));
+        mot.get(2).ifPresent(m -> m.setPower(leftPower));
+        mot.get(0).ifPresent(m -> m.setPower(rightPower));
+        mot.get(3).ifPresent(m -> m.setPower(rightPower));
+        hook.ifPresent(h -> h.setPower(hookPow));
         if (ser[0] != null) ser[0].setPosition(servoPos);
         if (ser.length == 2 && ser[1] != null) {
             ser[1].setPosition(c.servo2_pos());
         }
 
-        if (mot[6] != null) {
-            if (gamepad1.dpad_up || gamepad1.dpad_down) {
-                mot[6].setPower(gamepad1.dpad_up ? 1 : -1);
-            } else {
-                mot[6].setPower(0);
-            }
+        if (gamepad1.dpad_up || gamepad1.dpad_down) {
+            mot.get(6).ifPresent(m -> m.setPower(gamepad1.dpad_up ? 1 : -1));
+        } else {
+            mot.get(6).ifPresent(m -> m.setPower(0));
         }
 
-        if (mot[7] != null) {
-            if (gamepad1.dpad_left || gamepad1.dpad_right) {
-                mot[7].setPower(gamepad1.dpad_left ? 1 : -1);
-            } else {
-                mot[7].setPower(0);
-            }
+        if (gamepad1.dpad_left || gamepad1.dpad_right) {
+            mot.get(7).ifPresent(m -> m.setPower(gamepad1.dpad_left ? 1 : -1));
+        } else {
+            mot.get(7).ifPresent(m -> m.setPower(0));
         }
 
         // Show the elapsed game time and wheel power.

@@ -5,7 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.units.Angle;
 import org.firstinspires.ftc.teamcode.units.Distance;
+import org.firstinspires.ftc.teamcode.units.Unit;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -26,14 +28,14 @@ public class WheelManager {
     private double scale;
     private double[] pos;
     private double axle;
-    private int[] encoders;
-    private int[] lastEncoding;
     private final int ticks;
     private int[] previousPositions;
     private double previousDist;
     Logger logger;
     private long lastID = -1;
     private Random rand = new Random();
+    private double movementPower;
+    private double rotationPower;
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -44,10 +46,8 @@ public class WheelManager {
      * @param omega   the radial velocity of the wheels at speed scale
      * @param scale   scaling factor
      */
-    public WheelManager(DcMotor[] mot, double radius, double omega, double axle, double scale, final int ticks) {
+    public WheelManager(DcMotor[] mot, double radius, double omega, double axle, double scale, final int ticks, double movementPower, double rotationPower) {
         this.mot    = mot;
-        this.encoders = new int[mot.length];
-        this.lastEncoding = new int[encoders.length];
         this.radius = radius;
         this.theta  = 0;
         this.dist   = 0;
@@ -60,6 +60,8 @@ public class WheelManager {
         this.axle   = axle;
         this.ticks  = ticks;
         this.previousPositions = new int[mot.length];
+        this.movementPower = movementPower;
+        this.rotationPower = rotationPower;
     }
 
     /**
@@ -119,11 +121,27 @@ public class WheelManager {
         }
     }
 
-    public boolean moveAnother(Distance distanceToMove, long stateIterations) {
-        if (stateIterations == 0) {
-            previousDist = getCM();
+    public void moveAnother(Distance distanceToMove, double power) {
+        previousDist = getCM();
+        setPower(power, power);
+        while (distanceToMove.toCM() >= getCM() - previousDist);
+    }
+
+    public void turnAnother(Angle angleToRotate, double power) {
+        double previousAngle = Math.abs(getDegrees());
+        double direction = Math.signum(angleToRotate.getDegrees());
+        setPower(-direction*power,direction*power);
+        while (Math.abs(angleToRotate.getDegrees()) >= Math.abs(getDegrees()) - previousAngle);
+    }
+
+    public void processUnitInstruction(Unit u) {
+        if (u instanceof Angle) {
+            turnAnother((Angle) u, rotationPower);
+        } else if (u instanceof Distance) {
+            moveAnother((Distance) u, movementPower);
+        } else {
+            throw new IllegalArgumentException();
         }
-        return distanceToMove.toCM() > getCM() - previousDist;
     }
 
     public long  callAfter(Distance distanceToMove, long id, Runnable c) {
@@ -193,19 +211,6 @@ public class WheelManager {
     public String toString() {
         double[] p = getCartPos();
         return String.format("(%.2f, %.2f, %.2f)", p[0], p[1], p[2]*1800/Math.PI);
-    }
-
-    public int[] getEncoders() {
-        return encoders;
-    }
-
-    public void update() {
-        for (int i = 0; i < mot.length; i++) {
-            int pos = mot[i].getCurrentPosition();
-            int lastPos = lastEncoding[i];
-            encoders[i] += pos!=lastPos?pos:0;
-            lastEncoding[i] = mot[i].getCurrentPosition();
-        }
     }
 
     class WheelPair<T extends DcMotor> implements DcMotor {
