@@ -8,10 +8,15 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.units.Angle;
 import org.firstinspires.ftc.teamcode.units.Distance;
 import org.firstinspires.ftc.teamcode.units.Unit;
+import org.firstinspires.ftc.teamcode.wheelmanager.Instruction;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Random;
 import java.util.logging.Logger;
+
+import java8.util.Optional;
 
 /**
  * Created by Brian Colburn
@@ -36,6 +41,7 @@ public class WheelManager {
     private Random rand = new Random();
     private double movementPower;
     private double rotationPower;
+    private final Deque<Double[]> data = new ArrayDeque<>();
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -46,7 +52,7 @@ public class WheelManager {
      * @param omega   the radial velocity of the wheels at speed scale
      * @param scale   scaling factor
      */
-    public WheelManager(DcMotor[] mot, double radius, double omega, double axle, double scale, final int ticks, double movementPower, double rotationPower) {
+    public WheelManager(DcMotor[] mot, double radius, double omega, double axle, double scale, final int ticks) {
         this.mot    = mot;
         this.radius = radius;
         this.theta  = 0;
@@ -62,6 +68,17 @@ public class WheelManager {
         this.previousPositions = new int[mot.length];
         this.movementPower = movementPower;
         this.rotationPower = rotationPower;
+    }
+
+    public WheelManager(Optional<DcMotor>[] mot, double v, double v1, double v2, int i, int i1) {
+        this((DcMotor[]) null, v, v1, v2, i, i1);
+        for (int j = 0; j < 4; j++) {
+            if (mot[j].isPresent()) {
+                this.mot[i] = mot[j].get();
+            } else {
+                throw new NullPointerException("mot["+j+"] is null!");
+            }
+        }
     }
 
     /**
@@ -127,11 +144,27 @@ public class WheelManager {
         while (distanceToMove.toCM() >= getCM() - previousDist);
     }
 
+    public void moveTo(Distance pos, double power) {
+        double direction = Math.signum(pos.toCM()-getCM());
+        setPower(direction*power,direction*power);
+        while (pos.toCM() != getCM());
+    }
+
     public void turnAnother(Angle angleToRotate, double power) {
         double previousAngle = Math.abs(getDegrees());
         double direction = Math.signum(angleToRotate.getDegrees());
         setPower(-direction*power,direction*power);
         while (Math.abs(angleToRotate.getDegrees()) >= Math.abs(getDegrees()) - previousAngle);
+    }
+
+    public void turnTo(Angle theta, double power) {
+        double direction = Math.signum(theta.getDegrees()-getDegrees());
+        setPower(-direction*power, direction*power);
+        while (getDegrees() != theta.getDegrees());
+    }
+
+    public void processInstruction(Instruction instruction) {
+        instruction.apply(this);
     }
 
     public void processUnitInstruction(Unit u) {
