@@ -36,7 +36,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.WheelManager;
+import org.firstinspires.ftc.teamcode.wheelmanager.WheelManager;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.wheelmanager;
 
-import org.firstinspires.ftc.teamcode.WheelManager;
 import org.firstinspires.ftc.teamcode.units.Angle;
 
 public class AngleInstruction implements Instruction {

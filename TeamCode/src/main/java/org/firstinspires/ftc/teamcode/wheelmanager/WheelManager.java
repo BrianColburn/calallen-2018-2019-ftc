@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.wheelmanager;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
@@ -142,12 +142,14 @@ public class WheelManager {
         previousDist = getCM();
         setPower(power, power);
         while (distanceToMove.toCM() >= getCM() - previousDist);
+        setPower(0,0);
     }
 
     public void moveTo(Distance pos, double power) {
         double direction = Math.signum(pos.toCM()-getCM());
         setPower(direction*power,direction*power);
         while (pos.toCM() != getCM());
+        setPower(0,0);
     }
 
     public void turnAnother(Angle angleToRotate, double power) {
@@ -155,12 +157,14 @@ public class WheelManager {
         double direction = Math.signum(angleToRotate.getDegrees());
         setPower(-direction*power,direction*power);
         while (Math.abs(angleToRotate.getDegrees()) >= Math.abs(getDegrees()) - previousAngle);
+        setPower(0,0);
     }
 
     public void turnTo(Angle theta, double power) {
         double direction = Math.signum(theta.getDegrees()-getDegrees());
         setPower(-direction*power, direction*power);
         while (getDegrees() != theta.getDegrees());
+        setPower(0,0);
     }
 
     public void processInstruction(Instruction instruction) {
