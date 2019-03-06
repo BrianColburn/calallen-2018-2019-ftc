@@ -4,18 +4,17 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.units.Angle;
 import org.firstinspires.ftc.teamcode.units.Distance;
 import org.firstinspires.ftc.teamcode.units.Unit;
-import org.firstinspires.ftc.teamcode.wheelmanager.Instruction;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import java8.util.J8Arrays;
 import java8.util.Optional;
 
 /**
@@ -41,7 +40,7 @@ public class WheelManager {
     private Random rand = new Random();
     private double movementPower;
     private double rotationPower;
-    private final Deque<Double[]> data = new ArrayDeque<>();
+    private final Deque<WheelManagerSnapshot> snapshots = new ArrayDeque<>();
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -71,48 +70,38 @@ public class WheelManager {
     }
 
     public WheelManager(Optional<DcMotor>[] mot, double v, double v1, double v2, int i, int i1) {
-        this((DcMotor[]) null, v, v1, v2, i, i1);
+        this(new DcMotor[4], v, v1, v2, i, i1);
         for (int j = 0; j < 4; j++) {
             if (mot[j].isPresent()) {
-                this.mot[i] = mot[j].get();
+                this.mot[j] = mot[j].get();
             } else {
                 throw new NullPointerException("mot["+j+"] is null!");
             }
+            System.out.println(Arrays.toString(this.mot));
         }
     }
 
     /**
      * Calculate the change in the orientation of the robot
-     * @param t the duration of the rotation
-     * @param D either -1, 0, or 1
      * @return the angle of the arc traced by the robot
      */
-    private double w(double t, double D) {
+    private double w(int[] previousPositions, int[] currentPositions) {
         //return -D*omega*(radius/vradius)*t;
         //System.out.printf("Old theta: %.2f, D: %.2f, t: %.2f, new theta: %.2f%n",theta,D,t,theta + D*t);
-        return radius/axle * (((double)mot[1].getCurrentPosition() - previousPositions[1])/ticks - ((double)mot[3].getCurrentPosition() - previousPositions[3])/ticks);
+        // `dTheta = r/d (dRotsR - dRotsL)`
+        return radius/axle * (((double)currentPositions[1] - previousPositions[1])/ticks - ((double)currentPositions[3] - previousPositions[3])/ticks);
     }
 
     /**
      * calculate the change in the distance that the robot has traveled
-     * @param t the duration of the movement
-     * @param D either -1, 0, or 1
      * @return the distance traversed
      *
      * TODO: start using all 4 of the robot's encoders
      */
-    private double d(double t, double D) {
-        //System.out.printf("Old dist: %.2f, D: %.2f, t: %.2f, new dist: %.2f%n",dist,D,t,dist + D*t);
-        if (ticks < 0) {
-            // (unit-less) * ((length/time)/time) * (length) * (time)
-            // (unit-less) * (length/time) * (length)
-            return D * omega * radius * t;
-        } else {
-            // (unit-less) * (length) / (time) * (length)
-            // `dS = r/2 (dRotsR + dRotsL)`
-            // `dTheta = r/d (dRotsR - dRotsL)`
-            return radius/2 * (((double)mot[1].getCurrentPosition() - previousPositions[1])/ticks + ((double)mot[3].getCurrentPosition() - previousPositions[3])/ticks);
-        }
+    private double d(int[] previousPositions, int[] currentPositions) {
+        // (unit-less) * (length) / (time) * (length)
+        // `dS = r/2 (dRotsR + dRotsL)`
+        return radius/2 * (((double)currentPositions[1] - previousPositions[1])/ticks + ((double)currentPositions[3] - previousPositions[3])/ticks);
     }
 
     public void setPower(double l, double r) {
@@ -123,6 +112,7 @@ public class WheelManager {
             dist = dt[0];
             theta = dt[1];
             time = System.currentTimeMillis() / 1000.;
+            snapshots.add(new WheelManagerSnapshot(time, J8Arrays.stream(mot).limit(4L).mapToInt(DcMotor::getCurrentPosition).toArray()));
             left = l * scale;
             right = r * scale;
             for (int i = 0; i < 4; i++) {
@@ -220,27 +210,27 @@ public class WheelManager {
     public double[] getPolPos() {
         double newTime = System.currentTimeMillis()/1000.;
 
-        return new double[] {
-                dist  + d(newTime - time, (right + left)/scale),
-                theta + w(newTime - time, (right - left)/(scale*axle))
+        return new double[]{
+                dist + d(previousPositions, J8Arrays.stream(mot).filter(m -> m!=null).mapToInt(DcMotor::getCurrentPosition).toArray()),
+                theta + w(previousPositions, J8Arrays.stream(mot).filter(m -> m!=null).mapToInt(DcMotor::getCurrentPosition).toArray())
         };
     }
 
     public double[] getCartPos() {
         double[] icc = getICCPos();
         double newTime = System.currentTimeMillis()/1000;
-        double x = Double.isNaN(icc[0]) ? pos[0] : (pos[0]-icc[0]) * Math.cos(w(newTime - time, (right - left)/(scale*axle)))
-                - (pos[1]-icc[1]) * Math.sin(w(newTime - time, (right - left)/(scale*axle)))
+        double x = Double.isNaN(icc[0]) ? pos[0] : (pos[0]-icc[0]) * Math.cos(w(previousPositions, J8Arrays.stream(mot).limit(4L).mapToInt(DcMotor::getCurrentPosition).toArray()))
+                - (pos[1]-icc[1]) * Math.sin(w(previousPositions, J8Arrays.stream(mot).limit(4L).mapToInt(DcMotor::getCurrentPosition).toArray()))
                 + icc[0];
-        double y = Double.isNaN(icc[0]) ? pos[1] : (pos[0]-icc[0]) * Math.sin(w(newTime - time, (right - left)/(scale*axle)))
-                + (pos[1]-icc[1]) * Math.cos(w(newTime - time, (right - left)/(scale*axle)))
+        double y = Double.isNaN(icc[0]) ? pos[1] : (pos[0]-icc[0]) * Math.sin(w(previousPositions, J8Arrays.stream(mot).limit(4L).mapToInt(DcMotor::getCurrentPosition).toArray()))
+                + (pos[1]-icc[1]) * Math.cos(w(previousPositions, J8Arrays.stream(mot).limit(4L).mapToInt(DcMotor::getCurrentPosition).toArray()))
                 + icc[1];
         System.out.printf("Old X: %.2f, New X: %.2f%n", pos[0], x);
 
         return new double[] {
                 x,
                 y,
-                theta + w(newTime - time, (right - left)/(scale*axle))
+                theta + w(previousPositions, J8Arrays.stream(mot).limit(4L).mapToInt(DcMotor::getCurrentPosition).toArray())
         };
     }
 

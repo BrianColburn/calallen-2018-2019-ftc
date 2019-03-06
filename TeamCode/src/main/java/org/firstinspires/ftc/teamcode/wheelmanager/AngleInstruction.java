@@ -31,4 +31,9 @@ public class AngleInstruction implements Instruction {
         }
         return wm;
     }
+
+    @Override
+    public String toString() {
+        return "AngleInstruction";
+    }
 }

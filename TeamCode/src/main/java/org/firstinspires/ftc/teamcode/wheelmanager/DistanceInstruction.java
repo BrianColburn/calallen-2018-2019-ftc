@@ -31,4 +31,9 @@ public class DistanceInstruction implements Instruction {
         }
         return wm;
     }
+
+    @Override
+    public String toString() {
+        return "DistanceInstruction";
+    }
 }
