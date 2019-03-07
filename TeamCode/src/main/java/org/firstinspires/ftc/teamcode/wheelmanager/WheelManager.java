@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.wheelmanager;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.units.Angle;
 import org.firstinspires.ftc.teamcode.units.Distance;
 import org.firstinspires.ftc.teamcode.units.Unit;
@@ -41,6 +43,7 @@ public class WheelManager {
     private double movementPower;
     private double rotationPower;
     private final Deque<WheelManagerSnapshot> snapshots = new ArrayDeque<>();
+    public Optional<Telemetry> telemetry = Optional.empty();
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -78,6 +81,17 @@ public class WheelManager {
                 throw new NullPointerException("mot["+j+"] is null!");
             }
             System.out.println(Arrays.toString(this.mot));
+        }
+    }
+
+    public void initializeMotors(int[] motsToReverse) {
+        for (int i : motsToReverse) {
+            mot[i].setDirection(DcMotorSimple.Direction.REVERSE);
+        }
+
+        for (DcMotor m : mot) {
+            m.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            m.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
     }
 
@@ -125,6 +139,11 @@ public class WheelManager {
                 mot[2].setPower(left);
                 mot[3].setPower(right);*/
             }
+            telemetry.ifPresent(t -> {
+                t.addData("Mot Power", "%.2f,%.2f", left,right);
+                t.addData( "Mot Position", "%d,%d,%d,%d",mot[0].getCurrentPosition(),mot[1].getCurrentPosition(),mot[2].getCurrentPosition(),mot[3].getCurrentPosition());
+                t.update();
+            });
         }
     }
 
