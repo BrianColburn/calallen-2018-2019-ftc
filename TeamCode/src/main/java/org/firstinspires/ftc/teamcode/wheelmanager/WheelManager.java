@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.wheelmanager;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -44,6 +45,7 @@ public class WheelManager {
     private double rotationPower;
     private final Deque<WheelManagerSnapshot> snapshots = new ArrayDeque<>();
     public Optional<Telemetry> telemetry = Optional.empty();
+    public LinearOpMode lom;
 
     /**
      * The WheelManager class is a rudimentary dead-reckoning positioning system.
@@ -147,17 +149,21 @@ public class WheelManager {
         }
     }
 
+    public int[] getEncoders() {
+        return J8Arrays.stream(mot).mapToInt(DcMotor::getCurrentPosition).toArray();
+    }
+
     public void moveAnother(Distance distanceToMove, double power) {
         previousDist = getCM();
         setPower(power, power);
-        while (distanceToMove.toCM() >= getCM() - previousDist);
+        while (lom.opModeIsActive() && distanceToMove.toCM() >= getCM() - previousDist);
         setPower(0,0);
     }
 
     public void moveTo(Distance pos, double power) {
         double direction = Math.signum(pos.toCM()-getCM());
         setPower(direction*power,direction*power);
-        while (pos.toCM() != getCM());
+        while (lom.opModeIsActive() && (pos.toCM() - getCM()) > 0);
         setPower(0,0);
     }
 
@@ -165,14 +171,14 @@ public class WheelManager {
         double previousAngle = Math.abs(getDegrees());
         double direction = Math.signum(angleToRotate.getDegrees());
         setPower(-direction*power,direction*power);
-        while (Math.abs(angleToRotate.getDegrees()) >= Math.abs(getDegrees()) - previousAngle);
+        while (lom.opModeIsActive() && Math.abs(angleToRotate.getDegrees()) >= Math.abs(getDegrees()) - previousAngle);
         setPower(0,0);
     }
 
     public void turnTo(Angle theta, double power) {
         double direction = Math.signum(theta.getDegrees()-getDegrees());
         setPower(-direction*power, direction*power);
-        while (getDegrees() != theta.getDegrees());
+        while (lom.opModeIsActive() && getDegrees() != theta.getDegrees());
         setPower(0,0);
     }
 

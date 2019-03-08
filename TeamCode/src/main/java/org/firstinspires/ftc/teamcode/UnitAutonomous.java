@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.units.Angle;
 import org.firstinspires.ftc.teamcode.units.Foot;
@@ -24,6 +25,8 @@ import java8.util.Optional;
 @Autonomous(name = "InstructionAutonomous", group = "WIP")
 public class UnitAutonomous extends LinearOpMode {
     static Optional<DcMotor>[] mot = new Optional[4];
+    WheelManager wm;
+    ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -41,19 +44,32 @@ public class UnitAutonomous extends LinearOpMode {
                 new AngleInstruction(() -> 90, .4),
                 new DistanceInstruction(new Foot(2), 1)
                 );
-        WheelManager wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
+        wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
         wm.initializeMotors(new int[]{0,3});
         wm.telemetry = Optional.of(telemetry);
+        this.wm.lom = this;
         telemetry.addData("Info","Waiting for start");
         telemetry.update();
         waitForStart();
+        runtime.reset();
 
         for (Instruction instruction : instructions) {
             if (!opModeIsActive()) break;
             telemetry.addData("Processing", instruction);
+            updateInfo();
             telemetry.update();
             instruction.apply(wm);
         }
         while (opModeIsActive());
+    }
+
+    public void updateInfo() {
+        telemetry.addData( "Runtime", "%.2f", runtime.seconds());
+        double[] pos = wm.getPolPos();
+        telemetry.addData( "Position","%.2f, %.2f", pos[0], pos[1]*1800/Math.PI);
+        telemetry.addData( "CM    ", "(%f)/_(%f)", wm.getCM(),wm.getDegrees());
+        telemetry.addData( "Inches", "(%f)/_(%f)", wm.getInches(),wm.getDegrees());
+        telemetry.addData("Encoders", "%s", Arrays.toString(wm.getEncoders()));
+        telemetry.addData( "WM","%s",wm);
     }
 }
