@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.wheelmanager.JWheelManager;
 import org.firstinspires.ftc.teamcode.wheelmanager.WheelManager;
 
 /**
@@ -58,7 +59,7 @@ public class ManualDeadReckoning extends OpMode
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor[] mot = new DcMotor[5];
-    private WheelManager wm;
+    private JWheelManager wm;
     DcMotor hook;
     int hookDir = 1;
     double hookReverseTime = 0;
@@ -91,7 +92,7 @@ public class ManualDeadReckoning extends OpMode
         servo = hardwareMap.get(Servo.class, "ser0");
         servo.setPosition(0);
 
-        wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
+        wm = new JWheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
 
         hook  = mot[4];
 

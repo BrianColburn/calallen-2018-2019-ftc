@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.units.Foot;
 import org.firstinspires.ftc.teamcode.wheelmanager.AngleInstruction;
 import org.firstinspires.ftc.teamcode.wheelmanager.DistanceInstruction;
 import org.firstinspires.ftc.teamcode.wheelmanager.Instruction;
+import org.firstinspires.ftc.teamcode.wheelmanager.JWheelManager;
 import org.firstinspires.ftc.teamcode.wheelmanager.WheelManager;
 
 import java.util.Arrays;
@@ -25,7 +26,7 @@ import java8.util.Optional;
 @Autonomous(name = "InstructionAutonomous", group = "WIP")
 public class UnitAutonomous extends LinearOpMode {
     static Optional<DcMotor>[] mot = new Optional[4];
-    WheelManager wm;
+    JWheelManager wm;
     ElapsedTime runtime = new ElapsedTime();
 
     @Override
@@ -44,7 +45,7 @@ public class UnitAutonomous extends LinearOpMode {
                 new AngleInstruction(() -> 90, .4),
                 new DistanceInstruction(new Foot(2), 1)
                 );
-        wm = new WheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
+        wm = new JWheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
         wm.initializeMotors(new int[]{0,3});
         wm.telemetry = Optional.of(telemetry);
         this.wm.lom = this;
