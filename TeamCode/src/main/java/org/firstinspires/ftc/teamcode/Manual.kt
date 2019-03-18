@@ -27,20 +27,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode
 
-import android.hardware.SensorManager;
+import android.hardware.SensorManager
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.util.ElapsedTime
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayList
 
-import java8.util.Optional;
+import java8.util.Optional
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -56,60 +56,58 @@ import java8.util.Optional;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Manual", group="Iterative Opmode")
-public class BasicOpMode_Iterative extends OpMode
-{
+@TeleOp(name = "Manual", group = "Iterative Opmode")
+class Manual : OpMode() {
     // Declare OpMode members.
-    SensorManager sensorManager;
-    private ElapsedTime runtime = new ElapsedTime();
-    private List<Optional<DcMotor>> mot = new ArrayList<>();
-    Optional<DcMotor> hook;
-    int hookDir = 1;
-    double hookReverseTime = 0;
-    Servo[] ser;
-    double servoPos = 0;
+    internal var sensorManager: SensorManager? = null
+    private val runtime = ElapsedTime()
+    private val mot = ArrayList<DcMotor?>()
+    internal var hook: DcMotor? = null
+    internal var hookDir = 1
+    internal var hookReverseTime = 0.0
+    internal val ser = ArrayList<Servo?>()
+    internal var servoPos = 0.0
 
-    Controller c;
+    internal var c: Controller? = null
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
-    @Override
-    public void init() {
-        telemetry.addData("Status", "Initialized");
+    override fun init() {
+        telemetry.addData("Status", "Initialized")
         while (c == null) {
             if (gamepad1.y) {
-                c = new BoysController(gamepad1, gamepad2);
+                c = BoysController(gamepad1, gamepad2)
             } else if (gamepad1.x) {
-                c = new GirlsController(gamepad1, gamepad2);
+                c = GirlsController(gamepad1, gamepad2)
             }
         }
-
-        ser = new Servo[2];
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        for (int i=0;i<8;i++) {
-            mot.add(Optional.ofNullable(hardwareMap.tryGet(DcMotor.class, "mot"+i)));
+        for (i in 0..7) {
+            mot.add(hardwareMap.tryGet(DcMotor::class.java, "mot$i"))
+            if (mot[i] !is DcMotor) {
+                telemetry.addData("mot$i is null", "")
+            }
         }
-        hook  = mot.get(4);
-        for (int i=0;i<ser.length;i++) {
-            try {
-                ser[i] = hardwareMap.get(Servo.class, "ser"+i);
-            } catch (IllegalArgumentException e) {
-                telemetry.addData("ser"+i+" is null","");
+        hook = mot[4]
+        for (i in 0..7) {
+            ser.add(hardwareMap.tryGet(Servo::class.java, "ser$i"))
+            if (ser[i] !is Servo) {
+                telemetry.addData("ser$i is null", "")
             }
         }
 
-        if (c instanceof BoysController && ser[0] != null) {
+        if (c is BoysController && ser[0] is Servo) {
             //ser[0].scaleRange(0,.75);
         }
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        mot.get(0).ifPresent(m -> m.setDirection(DcMotor.Direction.REVERSE));
-        mot.get(3).ifPresent(m -> m.setDirection(DcMotor.Direction.REVERSE));
+        mot[0]?.direction = DcMotorSimple.Direction.REVERSE
+        mot[3]?.direction = DcMotorSimple.Direction.REVERSE
 
         /*foo = new Foo(telemetry);
         sensorManager = (SensorManager)new Activity().getSystemService(Context.SENSOR_SERVICE);
@@ -121,79 +119,71 @@ public class BasicOpMode_Iterative extends OpMode
         sensorManager.registerListener(foo, msensor, SensorManager.SENSOR_DELAY_GAME);*/
 
         // Tell the driver that initialization is complete.
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "Initialized")
     }
 
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
-    @Override
-    public void init_loop() {
-    }
+    override fun init_loop() {}
 
     /*
      * Code to run ONCE when the driver hits PLAY
      */
-    @Override
-    public void start() {
-        runtime.reset();
+    override fun start() {
+        runtime.reset()
     }
 
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
-    @Override
-    public void loop() {
-        c.update_state();
+    override fun loop() {
+        c!!.update_state()
 
         // Setup a variable for each drive wheel to save power level for telemetry
-        double leftPower;
-        double rightPower;
+        val leftPower: Double
+        val rightPower: Double
 
         if (gamepad1.left_bumper && runtime.seconds() - hookReverseTime >= .5) {
-            hookDir *= -1;
-            hookReverseTime = runtime.seconds();
+            hookDir *= -1
+            hookReverseTime = runtime.seconds()
         }
-        double[] wheel_powers = c.wheel_power();
-        leftPower  = wheel_powers[0];
-        rightPower = wheel_powers[1];
-        double hookPow = c.lift_power();
-        servoPos = c.servo_pos();
+        val wheel_powers = c!!.wheel_power()
+        leftPower = wheel_powers[0]
+        rightPower = wheel_powers[1]
+        val hookPow = c!!.lift_power()
+        servoPos = c!!.servo_pos()
 
         // Send calculated power to wheels
-        mot.get(1).ifPresent(m -> m.setPower(leftPower));
-        mot.get(2).ifPresent(m -> m.setPower(leftPower));
-        mot.get(0).ifPresent(m -> m.setPower(rightPower));
-        mot.get(3).ifPresent(m -> m.setPower(rightPower));
-        hook.ifPresent(h -> h.setPower(hookPow));
-        if (ser[0] != null) ser[0].setPosition(servoPos);
-        if (ser.length == 2 && ser[1] != null) {
-            ser[1].setPosition(c.servo2_pos());
-        }
+        mot[1]?.power = leftPower
+        mot[2]?.power = leftPower
+        mot[0]?.power = rightPower
+        mot[3]?.power = rightPower
+        hook?.power = hookPow
+        ser[0]?.let { it.position = servoPos }
+        ser[1]?.let { it.position = c!!.servo2_pos() }
 
         if (gamepad1.dpad_up || gamepad1.dpad_down) {
-            mot.get(6).ifPresent(m -> m.setPower(gamepad1.dpad_up ? 1 : -1));
+            mot[6]?.power = (if (gamepad1.dpad_up) 1 else -1).toDouble()
         } else {
-            mot.get(6).ifPresent(m -> m.setPower(0));
+            mot[6]?.power = 0.0
         }
 
         if (gamepad1.dpad_left || gamepad1.dpad_right) {
-            mot.get(7).ifPresent(m -> m.setPower(gamepad1.dpad_left ? 1 : -1));
+            mot[7]?.power = (if (gamepad1.dpad_left) 1 else -1).toDouble()
         } else {
-            mot.get(7).ifPresent(m -> m.setPower(0));
+            mot[7]?.power = 0.0
         }
 
         // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "left (%.2f), right (%.2f), hook (%.2f)", leftPower, rightPower, hookPow);
-        telemetry.addData("Servo", "(%.0f) Degrees, actually (%.2f)", servoPos*180,servoPos);
+        telemetry.addData("Status", "Run Time: $runtime")
+        telemetry.addData("Motors", "left (%.2f), right (%.2f), hook (%.2f)", leftPower, rightPower, hookPow)
+        telemetry.addData("Servo", "(%.0f) Degrees, actually (%.2f)", servoPos * 180, servoPos)
     }
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
-    @Override
-    public void stop() {
-    }
+    override fun stop() {}
 
 }
