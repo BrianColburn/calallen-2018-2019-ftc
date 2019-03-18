@@ -36,8 +36,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.wheelmanager.JWheelManager;
 import org.firstinspires.ftc.teamcode.wheelmanager.WheelManager;
+
+import java8.util.Lists;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -59,7 +60,7 @@ public class ManualDeadReckoning extends OpMode
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor[] mot = new DcMotor[5];
-    private JWheelManager wm;
+    private WheelManager wm;
     DcMotor hook;
     int hookDir = 1;
     double hookReverseTime = 0;
@@ -92,7 +93,7 @@ public class ManualDeadReckoning extends OpMode
         servo = hardwareMap.get(Servo.class, "ser0");
         servo.setPosition(0);
 
-        wm = new JWheelManager(mot, 8.89/2, 15.24/4.445, 37.5, 1,1160);
+        wm = new WheelManager(Lists.of(mot), 8.89/2, 37.5, 1160, null);
 
         hook  = mot[4];
 
@@ -161,7 +162,7 @@ public class ManualDeadReckoning extends OpMode
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motors", "left (%.2f), right (%.2f), hook (%.2f)", leftPower, rightPower, hookPow);
         //telemetry.addData("Servo", "(%.0f) Degrees", servoPos*180);
-        double[] pos = wm.getPolPos();//getCartPos();
+        double[] pos = wm.getPolarPos();//getCartPos();
         //telemetry.addData("Position", "(%.2f, %.2f, %.2f)", pos[0], pos[1], pos[2]*180/Math.PI%360);
 
         telemetry.addData("Position", "(%.2f)/_(%.2f)", pos[0],pos[1]*1800/Math.PI);

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.units;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Inches implements Distance {
     private final double value;
 
@@ -13,12 +15,27 @@ public class Inches implements Distance {
     }
 
     @Override
-    public double toCM() {
-        return value()*2.54;
+    public Centimeter toCM() {
+        return new Centimeter(value() * 2.54);
     }
 
     @Override
-    public double toInches() {
-        return value();
+    public Inches toInches() {
+        return this;
+    }
+
+    @Override
+    public double abs() {
+        return Math.abs(toCM().value());
+    }
+
+    @Override
+    public double signum() {
+        return Math.signum(value);
+    }
+
+    @Override
+    public int compareTo(@NotNull Distance other) {
+        return Double.compare(value, other.toInches().value);
     }
 }

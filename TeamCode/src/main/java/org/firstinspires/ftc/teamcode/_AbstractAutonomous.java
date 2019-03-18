@@ -66,9 +66,9 @@ public abstract class _AbstractAutonomous extends OpMode {
 
     public void updateInfo() {
         logAndAddData(Level.INFO, "Runtime", "%.2f", runtime.seconds());
-        double[] pos = wm.getPolPos();
+        double[] pos = wm.getPolarPos();
         logAndAddData(Level.INFO, "Position","%.2f, %.2f", pos[0], pos[1]*1800/Math.PI);
-        logAndAddData(Level.INFO, "CM    ", "(%f)/_(%f)", wm.getCM(),wm.getDegrees());
+        logAndAddData(Level.INFO, "CM    ", "(%f)/_(%f)", wm.getCm(),wm.getDegrees());
         logAndAddData(Level.INFO, "Inches", "(%f)/_(%f)", wm.getInches(),wm.getDegrees());
         logAndAddData(Level.INFO, "Encoders", "FL: %d, BR: %d, HK: %d", mot[1].getCurrentPosition(), mot[3].getCurrentPosition(), mot[4].getCurrentPosition());
         logAndAddData(Level.INFO, "WM","%s",wm);
