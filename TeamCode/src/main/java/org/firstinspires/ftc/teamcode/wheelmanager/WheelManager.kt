@@ -52,6 +52,10 @@ class WheelManager(val wheelRadius: Double, val axleLength: Double, val encoderT
     val encoders get() =
         intArrayOf(mot[0].currentPosition, mot[1].currentPosition, mot[2].currentPosition, mot[3].currentPosition)
 
+    init {
+        snapshots.add(WheelManagerSnapshot(time.seconds(), intArrayOf(0,0,0,0), Centimeter(0.0), Degree(0.0)))
+    }
+
     fun initializeMotors(motsToReverse: IntArray?) {
         motsToReverse?.forEach { mot[it].direction = DcMotorSimple.Direction.REVERSE }
         for (m in mot) {
