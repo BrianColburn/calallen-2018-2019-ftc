@@ -108,10 +108,6 @@ class ManualBW : LinearOpMode() {
             val leftPower: Double
             val rightPower: Double
 
-            if (gamepad1.left_bumper && runtime.seconds() - hookReverseTime >= .5) {
-                hookDir *= -1
-                hookReverseTime = runtime.seconds()
-            }
             val wheel_powers = c.wheel_power()
             leftPower = wheel_powers[0]
             rightPower = wheel_powers[1]
@@ -125,7 +121,7 @@ class ManualBW : LinearOpMode() {
             ser[1]?.let { it.position = c.servo2_pos() }
 
             if (gamepad1.dpad_up || gamepad1.dpad_down) {
-                mot[6]?.power = (if (gamepad1.dpad_up) 1 else -1).toDouble()
+             mot[6]?.power = (if (gamepad1.dpad_up) 1 else -1).toDouble()
             } else {
                 mot[6]?.power = 0.0
             }
