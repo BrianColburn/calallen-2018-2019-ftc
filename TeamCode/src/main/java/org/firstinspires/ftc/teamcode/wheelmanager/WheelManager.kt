@@ -14,22 +14,26 @@ import kotlin.collections.ArrayList
  * See this paper for help with dead-reckoning:
  * https://globaljournals.org/GJRE_Volume14/1-Kinematics-Localization-and-Control.pdf
  */
-class WheelManager(val wheelRadius: Double, val axleLength: Double, val encoderTicks: Int, val parentOpMode: LinearOpMode?) {
+class WheelManager(val wheelRadius: Double,
+                   val axleLength: Double,
+                   val encoderTicks: Int,
+                   val parentOpMode: LinearOpMode?,
+                   val isManual: Boolean) {
     private val mot = ArrayList<DcMotor>()
 
-    constructor (mot: Collection<DcMotor?>, wheelRadius: Double, axleLength: Double, encoderTicks: Int, parentOpMode: LinearOpMode?): this(wheelRadius, axleLength, encoderTicks, parentOpMode) {
+    constructor (mot: Collection<DcMotor?>, wheelRadius: Double, axleLength: Double, encoderTicks: Int, parentOpMode: LinearOpMode?, isManual: Boolean): this(wheelRadius, axleLength, encoderTicks, parentOpMode, isManual) {
         val err = ArrayList<Int>()
         mot.forEachIndexed { i, m ->  if (m is DcMotor) {this.mot.add(m)} else {err.add(i)}}
         if (err.size > 0) throw IllegalArgumentException("Null motor(s): $err")
     }
 
-    constructor(mot: Array<DcMotor?>, wheelRadius: Double, axleLength: Double, encoderTicks: Int, parentOpMode: LinearOpMode?): this(wheelRadius, axleLength, encoderTicks, parentOpMode) {
+    constructor(mot: Array<DcMotor?>, wheelRadius: Double, axleLength: Double, encoderTicks: Int, parentOpMode: LinearOpMode?, isManual: Boolean): this(wheelRadius, axleLength, encoderTicks, parentOpMode, isManual) {
         val err = ArrayList<Int>()
         mot.forEachIndexed { i, m ->  if (m is DcMotor) {this.mot.add(m)} else {err.add(i)}}
         if (err.size > 0) throw IllegalArgumentException("Null motor(s): $err")
     }
 
-    constructor(mot: Array<Optional<DcMotor>>, wheelRadius: Double, axleLength: Double, encoderTicks: Int, parentOpMode: LinearOpMode?): this(wheelRadius, axleLength, encoderTicks, parentOpMode) {
+    constructor(mot: Array<Optional<DcMotor>>, wheelRadius: Double, axleLength: Double, encoderTicks: Int, parentOpMode: LinearOpMode?, isManual: Boolean): this(wheelRadius, axleLength, encoderTicks, parentOpMode, isManual) {
         if (mot.take(4).any { it.isEmpty }) {
             throw IllegalArgumentException("Null motors: ${mot.mapIndexed { index, _ -> index }.filter { mot[it].isEmpty }}")
         }
@@ -69,7 +73,7 @@ class WheelManager(val wheelRadius: Double, val axleLength: Double, val encoderT
 
     fun setPower(l: Double, r: Double) {
         if (l != left || r != right) {
-            for (i in 0..3) mot[i].power = 0.0
+            if (!isManual) for (i in 0..3) mot[i].power = 0.0
             snapshots.add(WheelManagerSnapshot(time.seconds(), encoders, cm, degrees))
             val dt = polarPos
             dist = dt[0]
@@ -80,9 +84,9 @@ class WheelManager(val wheelRadius: Double, val axleLength: Double, val encoderT
             for (i in 0..3) {
                 mot[i].power = if (i == 1 || i == 2) left else right
             }
-            this.parentOpMode?.telemetry?.addData("Mot Power", "%.2f,%.2f", left, right)
-            parentOpMode?.telemetry?.addData("Mot Positions", "%s", Arrays.toString(encoders))
-            parentOpMode?.telemetry?.update()
+            //this.parentOpMode?.telemetry?.addData("Mot Power", "%.2f,%.2f", left, right)
+            //parentOpMode?.telemetry?.addData("Mot Positions", "%s", Arrays.toString(encoders))
+            //parentOpMode?.telemetry?.update()
         }
     }
 

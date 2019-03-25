@@ -1,26 +1,35 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+
+import org.firstinspires.ftc.teamcode.wheelmanager.WheelManager;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import java8.util.J8Arrays;
+
 public class test {
     public static void main(String... args) throws InterruptedException {
-        Class bc = BoysController.class;
-        Class c = bc.getSuperclass();
-        Method[] ms = bc.getDeclaredMethods();
-        Field[] fs = bc.getDeclaredFields();
+        Class clazz = WheelManager.class;
+        Class c = clazz.getSuperclass();
+        Method[] ms = clazz.getDeclaredMethods();
+        Field[] fs = clazz.getDeclaredFields();
         System.out.println(c);
         for (Method m : ms) {
-            System.out.println(m);
+            //System.out.println(m);
+            if (!Modifier.isPrivate(m.getModifiers()))
+                System.out.println(m.getName() + " :: " + J8Arrays.stream(m.getParameterTypes()).map(Class::getSimpleName).map(s -> s + " -> ").reduce("",String::concat) + m.getReturnType().getSimpleName());
         }
         for (Field f : fs) {
-            System.out.println(f);
+            if (!Modifier.isPrivate(f.getModifiers()))
+                System.out.println(f.getName() + " :: " + f.getType().getSimpleName());
         }
     }
 }

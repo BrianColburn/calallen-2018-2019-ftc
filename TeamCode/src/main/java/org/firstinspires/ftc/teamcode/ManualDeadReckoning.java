@@ -93,7 +93,7 @@ public class ManualDeadReckoning extends OpMode
         servo = hardwareMap.get(Servo.class, "ser0");
         servo.setPosition(0);
 
-        wm = new WheelManager(Lists.of(mot), 8.89/2, 37.5, 1160, null);
+        wm = new WheelManager(Lists.of(mot), 8.89/2, 37.5, 1160, null, true);
 
         hook  = mot[4];
 

@@ -63,7 +63,7 @@ class ManualBW : LinearOpMode() {
         }
         hook = mot[4]
 
-        wm = WheelManager(mot.takeWhile { it is DcMotor }, 8.89 / 2, 37.5, 1160, this)
+        wm = WheelManager(mot.takeWhile { it is DcMotor }, 8.89 / 2, 37.5, 1160, this, true)
         wm.initializeMotors(intArrayOf(0,3))
         wm.setPower(0.0,0.0)
 
@@ -136,6 +136,7 @@ class ManualBW : LinearOpMode() {
             telemetry.addData("Status", "Run Time: $runtime")
             telemetry.addData("Motors", "left (%.2f), right (%.2f), hook (%.2f)", leftPower, rightPower, hookPow)
             telemetry.addData("Servo", "(%.0f) Degrees, actually (%.2f)", servoPos * 180, servoPos)
+            telemetry.update()
         }
         //endregion
     }

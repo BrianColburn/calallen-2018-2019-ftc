@@ -8,17 +8,23 @@ abstract class Controller {
 
     internal var parent: OpMode? = null
     private var internalG1: Gamepad? = null
-    internal val g1: Gamepad
+    private var internalG2: Gamepad? = null
+    val g1: Gamepad
         get() {
-            parent.let { return it!!.gamepad1 }
-            internalG1.let { return it!! }
+            parent?.let { return it.gamepad1 }
+            internalG1?.let { return it }
             throw IllegalAccessException("Both parent and internalG1 are null")
         }
-    internal abstract var g2: Gamepad
+    val g2: Gamepad
+        get() {
+            parent?.let { return it.gamepad2 }
+            internalG2?.let { return it }
+            throw IllegalAccessException("Both parent and internalG2 are null")
+        }
 
     constructor(g1: Gamepad, g2: Gamepad) {
-        this.g2 = g2
         this.internalG1 = g1
+        this.internalG2 = g2
     }
 
     constructor(parent: OpMode) {

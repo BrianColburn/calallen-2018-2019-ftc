@@ -37,7 +37,7 @@ class UnitAutonomous : LinearOpMode() {
                 AngleInstruction({ 90.0 }, .4),
                 DistanceInstruction(Foot(2.0), 1.0)
         )
-        wm = WheelManager(mot, 8.89 / 2, 37.5, 1160, this)
+        wm = WheelManager(mot, 8.89 / 2, 37.5, 1160, this, false)
         wm.initializeMotors(intArrayOf(0, 3))
         telemetry.addData("Info", "Waiting for start")
         telemetry.update()

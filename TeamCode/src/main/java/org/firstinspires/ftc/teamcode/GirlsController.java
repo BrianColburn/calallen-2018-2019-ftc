@@ -5,17 +5,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.jetbrains.annotations.NotNull;
 
 public class GirlsController extends Controller {
-    @NotNull
-    @Override
-    public Gamepad getG1() {
-        return null;
-    }
-
-    @NotNull
-    @Override
-    public Gamepad getG2() {
-        return null;
-    }
 
     enum State {
         Normal, Chucking
@@ -26,7 +15,7 @@ public class GirlsController extends Controller {
     private long   stateTime = 0;
 
     public GirlsController(Gamepad g1, Gamepad g2) {
-        super();
+        super(g1, g2);
     }
 
     @Override
