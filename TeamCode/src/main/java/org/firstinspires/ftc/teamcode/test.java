@@ -23,9 +23,12 @@ public class test {
         Field[] fs = clazz.getDeclaredFields();
         System.out.println(c);
         for (Method m : ms) {
+            String r = m.getReturnType().getSimpleName();
+            String params = J8Arrays.stream(m.getParameterTypes()).map(Class::getSimpleName).reduce("",(s1, s2) -> s1 +", "+s2);
+            System.out.printf("%s : %s %s(%s)%n", clazz.getSimpleName(), r.equals("void")?"":r, m.getName(), params);
             //System.out.println(m);
-            if (!Modifier.isPrivate(m.getModifiers()))
-                System.out.println(m.getName() + " :: " + J8Arrays.stream(m.getParameterTypes()).map(Class::getSimpleName).map(s -> s + " -> ").reduce("",String::concat) + m.getReturnType().getSimpleName());
+            //if (!Modifier.isPrivate(m.getModifiers()))
+            //    System.out.println(m.getName() + " :: " + J8Arrays.stream(m.getParameterTypes()).map(Class::getSimpleName).map(s -> s + " -> ").reduce("",String::concat) + m.getReturnType().getSimpleName());
         }
         for (Field f : fs) {
             if (!Modifier.isPrivate(f.getModifiers()))
