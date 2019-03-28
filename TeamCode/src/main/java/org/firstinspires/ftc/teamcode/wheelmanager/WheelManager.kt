@@ -5,26 +5,71 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.util.ElapsedTime
 import java8.util.Optional
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation
+import org.firstinspires.ftc.robotcore.external.navigation.Position
 import org.firstinspires.ftc.teamcode.units.*
 import java.util.*
 import kotlin.collections.ArrayList
 
 /**
- * Created by Brian Colburn
+ * Provides an interface for interacting with robots designed
+ * like the diagram below. WheelManager allows programmers to
+ * simplify motor related code and also implements dead-reckoning positioning.
+ *
+ * WheelManager should almost never be used for manual control of the robot,
+ * as it introduces a non negligible amount of lag and drastically reduces
+ * the responsiveness.
+ *
  * See this paper for help with dead-reckoning:
  * https://globaljournals.org/GJRE_Volume14/1-Kinematics-Localization-and-Control.pdf
+ *
+ *                      axleLength
+ *            +--------------------------+
+ *            |                          |
+ *            v                          v
+ *
+ *            +          front           +
+ *            | 1  +----------------+  0 |
+ *       +->  +----+                +----+
+ *       |    |    |                |    |
+ *       +->  +    |                |    +
+ *  wheelRadius    |                |
+ *                 |                |
+ *                 |                |
+ *            +    |                |    +
+ *            | 2  |                |  3 |
+ *            +----+                +----+
+ *            |    +----------------+    |
+ *            +                          +
+ *
+ * @param mot           the list of motors to manage
+ *                      can be Collection<DcMotor?>, Array<DcMotor?>,
+ *                      or Array<Optional<DcMotor>>
+ * @param wheelRadius   the radius of the robot's wheels
+ * @param axleLength    the distance between the center of two opposite wheels
+ * @param encoderTicks  how many ticks are in one revolution
+ * @param parentOpMode  the opmode that instantiated this class
+ *
+ * @author Brian C
  */
-class WheelManager(val wheelRadius: Double,
+class WheelManager private constructor(val wheelRadius: Double,
                    val axleLength: Double,
                    val encoderTicks: Int,
                    val parentOpMode: LinearOpMode?,
                    val isManual: Boolean) {
     private val mot = ArrayList<DcMotor>()
 
-    constructor (mot: Collection<DcMotor?>, wheelRadius: Double, axleLength: Double, encoderTicks: Int, parentOpMode: LinearOpMode?, isManual: Boolean): this(wheelRadius, axleLength, encoderTicks, parentOpMode, isManual) {
+    constructor (mot: Collection<DcMotor?>,
+                 wheelRadius: Double,
+                 axleLength: Double,
+                 encoderTicks: Int,
+                 parentOpMode: LinearOpMode?,
+                 isManual: Boolean):
+            this(wheelRadius, axleLength, encoderTicks, parentOpMode, isManual) {
         val err = ArrayList<Int>()
         mot.forEachIndexed { i, m ->  if (m is DcMotor) {this.mot.add(m)} else {err.add(i)}}
-        if (err.size > 0) throw IllegalArgumentException("Null motor(s): $err")
+        if (err.isNotEmpty()) throw IllegalArgumentException("Null motor(s): $err")
     }
 
     constructor(mot: Array<DcMotor?>, wheelRadius: Double, axleLength: Double, encoderTicks: Int, parentOpMode: LinearOpMode?, isManual: Boolean): this(wheelRadius, axleLength, encoderTicks, parentOpMode, isManual) {
@@ -40,16 +85,22 @@ class WheelManager(val wheelRadius: Double,
         this.mot.addAll(mot.take(4).map { it.get() })
     }
 
+    // Power to the left and right motors
     private var left  = 0.0
     private var right = 0.0
+
+    // Time since instantiation
     private val time: ElapsedTime = ElapsedTime()
+
+    // Stack of snapshots for all previous calls to setPower
     private val snapshots: ArrayDeque<WheelManagerSnapshot> = ArrayDeque()
     private var dist = 0.0
     private var theta = 0.0
-    private var posX = 0.0
-    private var posY = 0.0
-    private var posT = 0.0
+    private var pos = Position()
 
+    /**
+     * @return current heading in degrees.
+     */
     val degrees get() = Degree(polarPos [1] * 1800 / Math.PI)
     val inches get() = Inches(10 / 3.533482 * polarPos[0])
     val cm get() = Centimeter(25.4 / 3.533482 * polarPos[0])
@@ -78,6 +129,7 @@ class WheelManager(val wheelRadius: Double,
             val dt = polarPos
             dist = dt[0]
             theta = dt[1]
+            pos = getCartPos().position
             time.reset()
             left = l
             right = r
@@ -179,14 +231,15 @@ class WheelManager(val wheelRadius: Double,
         instruction?.apply(this)
     }
 
-    /**
-     * TODO: Test this
-     */
-    fun getCartPos(): DoubleArray {
-        return doubleArrayOf(
-                posX + Math.cos(theta) * d(snapshots.last.encoders, encoders),
-                posY + Math.sin(theta) * d(snapshots.last.encoders, encoders),
-                posT + w(snapshots.last.encoders, encoders))
+    // TODO: Fix this
+    fun getCartPos(): PositionOrientation {
+        return PositionOrientation(
+                pos + Position(DistanceUnit.CM,
+                        Math.cos(theta) * 25.4 / 3.533482 * d(snapshots.last.encoders, encoders),
+                        Math.sin(theta) * 25.4 / 3.533482 * d(snapshots.last.encoders, encoders),
+                        0.0,
+                        time.nanoseconds()),
+                Degree( theta + w(snapshots.last.encoders, encoders)))
     }
 
 }

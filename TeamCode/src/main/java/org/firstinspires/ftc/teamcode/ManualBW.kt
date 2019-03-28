@@ -173,9 +173,9 @@ class ManualBW : LinearOpMode() {
                 }
 
         telemetry.addLine()
-                .addData("X") { wm.getCartPos()[0] }
-                .addData("Y") { wm.getCartPos()[1] }
-                .addData("T") { wm.getCartPos()[2] }
+                .addData("X") { wm.getCartPos().position.x }
+                .addData("Y") { wm.getCartPos().position.y }
+                .addData("T") { wm.getCartPos().orientation.degrees }
     }
 
     //----------------------------------------------------------------------------------------------

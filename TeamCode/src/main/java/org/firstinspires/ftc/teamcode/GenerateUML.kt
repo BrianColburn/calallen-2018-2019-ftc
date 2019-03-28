@@ -9,7 +9,7 @@ object GenerateUML {
     @JvmStatic
     public fun main(args : Array<String>) {
         println("@startuml")
-        printInfo(WheelManager::class.java)
+        printInfo(ManualBW::class.java)
         println("@enduml")
     }
 
