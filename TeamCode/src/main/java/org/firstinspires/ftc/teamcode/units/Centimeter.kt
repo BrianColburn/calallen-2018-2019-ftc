@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.units
 
-open class Centimeter(val value: Double) : Distance {
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+
+open class Centimeter(val value: Double, override val unit: DistanceUnit) : Distance {
     override fun value(): Double {
         return value
     }

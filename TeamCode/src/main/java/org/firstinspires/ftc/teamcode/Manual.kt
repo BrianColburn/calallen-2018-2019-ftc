@@ -12,18 +12,15 @@ import com.qualcomm.robotcore.util.ElapsedTime
 import java.util.ArrayList
 
 /**
- * Bare minimum manual control opmode.
+ * Provides a bare minimum manual control opmode.
+ * This can be used to figure out whether a bug is resulting from hardware or software.
  */
-
 @TeleOp(name = "Manual", group = "Iterative Opmode")
 class Manual : OpMode() {
     // Declare OpMode members.
-    internal var sensorManager: SensorManager? = null
     private val runtime = ElapsedTime()
     private val mot = ArrayList<DcMotor?>()
     internal var hook: DcMotor? = null
-    internal var hookDir = 1
-    internal var hookReverseTime = 0.0
     internal val ser = ArrayList<Servo?>()
     internal var servoPos = 0.0
 
@@ -34,7 +31,7 @@ class Manual : OpMode() {
      */
     override fun init() {
         telemetry.addData("Status", "Initialized")
-        while (c == null) {
+        while (c !is Controller) {
             if (gamepad1.y) {
                 c = BoysController(gamepad1, gamepad2)
             } else if (gamepad1.x) {
@@ -79,21 +76,17 @@ class Manual : OpMode() {
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
     override fun loop() {
-        c!!.update_state()
+        c!!.updateState()
 
         // Setup a variable for each drive wheel to save power level for telemetry
         val leftPower: Double
         val rightPower: Double
 
-        if (gamepad1.left_bumper && runtime.seconds() - hookReverseTime >= .5) {
-            hookDir *= -1
-            hookReverseTime = runtime.seconds()
-        }
-        val wheel_powers = c!!.wheel_power()
-        leftPower = wheel_powers[0]
-        rightPower = wheel_powers[1]
-        val hookPow = c!!.lift_power()
-        servoPos = c!!.servo_pos()
+        val wheelPowers = c!!.wheelPower()
+        leftPower = wheelPowers[0]
+        rightPower = wheelPowers[1]
+        val hookPow = c!!.liftPower()
+        servoPos = c!!.servoPos()
 
         // Send calculated power to wheels
         mot[1]?.power = leftPower
@@ -102,7 +95,7 @@ class Manual : OpMode() {
         mot[3]?.power = rightPower
         hook?.power = hookPow
         ser[0]?.let { it.position = servoPos }
-        ser[1]?.let { it.position = c!!.servo2_pos() }
+        ser[1]?.let { it.position = c!!.servo2Pos() }
 
         if (gamepad1.dpad_up || gamepad1.dpad_down) {
             mot[6]?.power = (if (gamepad1.dpad_up) 1 else -1).toDouble()

@@ -4,9 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.util.Range
 
+/**
+ * Provides an interface for controllers, allowing layouts to easily be swapped out.
+ */
 abstract class Controller {
 
-    internal var parent: OpMode? = null
+    private var parent: OpMode? = null
     private var internalG1: Gamepad? = null
     private var internalG2: Gamepad? = null
     val g1: Gamepad
@@ -31,7 +34,7 @@ abstract class Controller {
         this.parent = parent
     }
 
-    fun wheel_power(): DoubleArray {
+    fun wheelPower(): DoubleArray {
 
         val drive = (-g1.right_stick_y).toDouble()
         val turn = g1.right_stick_x.toDouble()
@@ -40,10 +43,10 @@ abstract class Controller {
         return doubleArrayOf(leftPower, rightPower)
     }
 
-    abstract fun lift_power(): Double
-    abstract fun servo_pos(): Double
+    abstract fun liftPower(): Double
+    abstract fun servoPos(): Double
 
-    abstract fun servo2_pos(): Double
+    abstract fun servo2Pos(): Double
 
-    open fun update_state() {}
+    open fun updateState() {}
 }

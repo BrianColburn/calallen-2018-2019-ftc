@@ -241,5 +241,4 @@ class WheelManager private constructor(val wheelRadius: Double,
                         time.nanoseconds()),
                 Degree( theta + w(snapshots.last.encoders, encoders)))
     }
-
 }

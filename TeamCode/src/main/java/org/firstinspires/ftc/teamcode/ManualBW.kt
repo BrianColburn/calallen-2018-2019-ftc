@@ -4,10 +4,8 @@ import android.hardware.SensorManager
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.*
@@ -102,23 +100,23 @@ class ManualBW : LinearOpMode() {
         //endregion
         //region Loop
         while (opModeIsActive()) {
-            c.update_state()
+            c.updateState()
 
             // Setup a variable for each drive wheel to save power level for telemetry
             val leftPower: Double
             val rightPower: Double
 
-            val wheel_powers = c.wheel_power()
+            val wheel_powers = c.wheelPower()
             leftPower = wheel_powers[0]
             rightPower = wheel_powers[1]
-            val hookPow = c.lift_power()
-            servoPos = c.servo_pos()
+            val hookPow = c.liftPower()
+            servoPos = c.servoPos()
 
             // Send calculated power to wheels
             wm.setPower(leftPower, rightPower)
             hook?.power = hookPow
             ser[0]?.let { it.position = servoPos }
-            ser[1]?.let { it.position = c.servo2_pos() }
+            ser[1]?.let { it.position = c.servo2Pos() }
 
             if (gamepad1.dpad_up || gamepad1.dpad_down) {
              mot[6]?.power = (if (gamepad1.dpad_up) 1 else -1).toDouble()

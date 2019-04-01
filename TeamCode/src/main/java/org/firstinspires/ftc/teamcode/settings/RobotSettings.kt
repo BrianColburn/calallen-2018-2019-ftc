@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.settings
 import java.io.BufferedReader
 import java.io.FileReader
 
+/**
+ * Provides runtime editable settings.
+ */
 class RobotSettings {
     val FILE_PATH = "/storage/emulated/0/robot-settings.txt"
 

@@ -10,7 +10,7 @@ public operator fun Position.plus(other: Position): Position {
             this.x + norm.x,
             this.y + norm.y,
             this.z + norm.z,
-            this.acquisitionTime)
+            System.nanoTime())
 }
 
 public operator fun Position.minus(other: Position): Position {
@@ -19,9 +19,10 @@ public operator fun Position.minus(other: Position): Position {
             this.x - norm.x,
             this.y - norm.y,
             this.z - norm.z,
-            this.acquisitionTime)
+            System.nanoTime())
 }
 
 public operator fun Position.unaryMinus(): Position {
     return Position().toUnit(this.unit) - this
 }
+
