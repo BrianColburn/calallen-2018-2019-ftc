@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode.units
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 
 open class Centimeter(override val value: Double) : Distance() {
-    override val unit = DistanceUnit.CM
+    override val unit = Static.unit
+    companion object Static {
+        val unit = DistanceUnit.CM
+    }
 
-    constructor(dist: Distance): this(dist.toUnit(DistanceUnit.CM).value)
+    constructor(dist: Distance): this(dist.toUnit(Static.unit).value)
 
     override fun toCM(): Centimeter {
         return this
@@ -13,9 +16,5 @@ open class Centimeter(override val value: Double) : Distance() {
 
     override fun toInches(): Inches {
         return Inches(this)
-    }
-
-    operator fun minus(d: Distance): Centimeter {
-        return Centimeter(value - d.toCM().value)
     }
 }
