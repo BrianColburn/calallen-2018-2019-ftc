@@ -183,7 +183,7 @@ class WheelManager private constructor(val wheelRadius: Double,
      */
     fun moveAnother(distanceToMove: Distance, power: Double) {
         setPower(power, power)
-        while (parentOpMode!!.opModeIsActive() && distanceToMove.toCM() >= cm - snapshots.last.cm);
+        while (parentOpMode!!.opModeIsActive() && distanceToMove.toCM() >= cm - snapshots.last.distance);
         setPower(0.0, 0.0)
     }
 

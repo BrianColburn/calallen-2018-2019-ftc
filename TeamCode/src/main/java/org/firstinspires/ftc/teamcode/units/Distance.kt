@@ -1,19 +1,42 @@
 package org.firstinspires.ftc.teamcode.units
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import java.util.*
 
 /**
- * Provides a base distance class.
- * A Distance is a Double paired with a DistanceUnit.
+ * Provides a class that pairs FTC's DistanceUnit Enums with an explicit quantity.
  *
- * This class provides comparison, conversion, and basic math for distances.
+ * Comparisons between, conversions from, and basic math can be performed upon distances.
  * Multiplication between distances is not supported; however, scaling is.
+ *
+ * Instances can be created simply by supplying a unit and value,
+ *  or more complex units can be specified in terms of a base DistanceUnit.
+ * Derived units must supply a multiplicative relation to an existing DistanceUnit,
+ *  the precision to use for comparisons and printing,
+ *  and a symbol.
  */
-abstract class Distance : Comparable<Distance> {
-    abstract val unit: DistanceUnit
-    abstract val value: Double
-    abstract fun toCM(): Centimeter
-    abstract fun toInches(): Inches
+open class Distance(val baseUnit: DistanceUnit,
+                    val relation: Double,
+                    val precision: Int,
+                    val symbol: String,
+                    value: Double) : Comparable<Distance> {
+    val value = relation*value
+
+    constructor(unit: DistanceUnit, value: Double):
+            this(unit,
+                    1.0,
+                    when (unit) {
+                        DistanceUnit.METER -> 3
+                        DistanceUnit.CM -> 1
+                        DistanceUnit.MM -> 0
+                        DistanceUnit.INCH -> 2
+                    },
+                    unit.toString(),
+                    value)
+
+
+    fun toCM() = this.toUnit(DistanceUnit.CM)
+    fun toInches() = this.toUnit(DistanceUnit.INCH)
 
 
     fun abs(): Double {
@@ -25,75 +48,27 @@ abstract class Distance : Comparable<Distance> {
     }
 
     override fun compareTo(other: Distance): Int {
-        return value.compareTo(other.toUnit(unit).value)
+        return value.compareTo(other.toUnit(baseUnit).value)
     }
 
-    operator fun times(s: Number) = object : Distance() {
-        override val unit = this@Distance.unit
-        override val value = this@Distance.value * s.toDouble()
+    operator fun times(s: Number) = Distance(this.baseUnit, this.value * s.toDouble())
 
-        override fun toCM(): Centimeter {
-            return Centimeter(this.toUnit(Centimeter.unit).value)
-        }
-
-        override fun toInches(): Inches {
-            return Inches(this.toUnit(Inches.unit).value)
-        }
-    }
-
-    operator fun plus(d: Distance) = object : Distance() {
-        override val unit = this@Distance.unit
-        override val value = this@Distance.value + d.toUnit(unit).value
-
-        override fun toCM(): Centimeter {
-            return Centimeter(this.toUnit(Centimeter.unit).value)
-        }
-
-        override fun toInches(): Inches {
-            return Inches(this.toUnit(Inches.unit).value)
-        }
-    }
+    operator fun plus(d: Distance) = Distance(this.baseUnit, this.value + d.toUnit(this.baseUnit).value)
 
     operator fun minus(d: Distance) = this + -d
 
-    operator fun unaryMinus() = object : Distance() {
-        override val unit = this@Distance.unit
-        override val value = -this@Distance.value
+    operator fun unaryMinus() = Distance(this.baseUnit, -this.value)
 
-        override fun toCM(): Centimeter {
-            return Centimeter(this.toUnit(Centimeter.unit).value)
-        }
+    fun toUnit(newUnit: DistanceUnit) = Distance(newUnit, newUnit.fromUnit(this.baseUnit, this.relation * this.value))
 
-        override fun toInches(): Inches {
-            return Inches(this.toUnit(Inches.unit).value)
-        }
-    }
-
-    fun toUnit(him: DistanceUnit): Distance {
-        return object : Distance() {
-            override val unit = him
-            override val value = him.fromUnit(this@Distance.unit, this@Distance.value)
-
-            override fun toCM(): Centimeter {
-                return Centimeter(this.toUnit(Centimeter.unit).value)
-            }
-
-            override fun toInches(): Inches {
-                return Inches(this.toUnit(Inches.unit).value)
-            }
-        }
-    }
-
-    override fun toString(): String {
-        return unit.toString(value)
-    }
+    override fun toString(): String = String.format(Locale.getDefault(), "%.${precision}f$symbol", value/relation);
 
     override fun equals(other: Any?): Boolean {
         if (other is Distance) {
-            if (this.unit == other.unit) {
+            if (this.baseUnit == other.baseUnit) {
                 //println("${Math.round(this.value*1000)} =?= ${Math.round(other.value*1000)}")
-                return Math.round(this.value*1000) == Math.round(other.value*1000)
-            } else { // We need to get a common unit
+                return Math.round(this.value*Math.pow(10.0,precision.toDouble())) == Math.round(other.value*Math.pow(10.0,precision.toDouble()))
+            } else { // We need to get a common baseUnit
                 //println("${toCM()} =?= ${other.toCM()}")
                 return this.toCM() == other.toCM()
             }
@@ -101,3 +76,7 @@ abstract class Distance : Comparable<Distance> {
         return false
     }
 }
+
+fun Centimeter(value: Double) = Distance(DistanceUnit.CM, value)
+fun Inches(value: Double) = Distance(DistanceUnit.INCH, value)
+fun Foot(value: Double) = Distance(DistanceUnit.INCH, 12.0, 1, "ft", value)
