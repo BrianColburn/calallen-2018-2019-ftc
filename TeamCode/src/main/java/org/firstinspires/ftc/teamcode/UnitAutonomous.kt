@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.wheelmanager.WheelManager
 import java.util.Arrays
 
 import java8.util.Lists
+import org.firstinspires.ftc.teamcode.units.Degree
 
 @Autonomous(name = "InstructionAutonomous", group = "WIP")
 class UnitAutonomous : LinearOpMode() {
@@ -34,7 +35,7 @@ class UnitAutonomous : LinearOpMode() {
                         return wm
                     }},
                 DistanceInstruction(Foot(2.0), .4, DistanceInstruction.DistanceOption.MOVE_TO),
-                AngleInstruction({ 90.0 }, .4),
+                AngleInstruction(Degree(90.0), .4),
                 DistanceInstruction(Foot(2.0), 1.0)
         )
         wm = WheelManager(mot, 8.89 / 2, 37.5, 1160, this, false)

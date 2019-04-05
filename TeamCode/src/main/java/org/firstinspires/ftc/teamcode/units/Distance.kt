@@ -59,7 +59,7 @@ open class Distance(val baseUnit: DistanceUnit,
 
     operator fun unaryMinus() = Distance(this.baseUnit, -this.value)
 
-    fun toUnit(newUnit: DistanceUnit) = Distance(newUnit, newUnit.fromUnit(this.baseUnit, this.relation * this.value))
+    fun toUnit(newUnit: DistanceUnit) = Distance(newUnit, newUnit.fromUnit(this.baseUnit, this.value))
 
     override fun toString(): String = String.format(Locale.getDefault(), "%.${precision}f$symbol", value/relation);
 

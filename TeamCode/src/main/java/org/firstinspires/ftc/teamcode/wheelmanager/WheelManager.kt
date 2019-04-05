@@ -208,9 +208,9 @@ class WheelManager private constructor(val wheelRadius: Double,
      */
     fun turnAnother(angleToRotate: Angle, power: Double) {
         val previousAngle = degrees.abs()
-        val direction = Math.signum(angleToRotate.degrees)
+        val direction = angleToRotate.degrees.signum()
         setPower(-direction * power, direction * power)
-        while (parentOpMode!!.opModeIsActive() && Math.abs(angleToRotate.degrees) >= degrees.abs() - previousAngle);
+        while (parentOpMode!!.opModeIsActive() && angleToRotate.degrees.abs() >= degrees.abs() - previousAngle);
         setPower(0.0, 0.0)
     }
 
@@ -221,7 +221,7 @@ class WheelManager private constructor(val wheelRadius: Double,
      * @param power amount of power to supply to the wheels.
      */
     fun turnTo(theta: Angle, power: Double) {
-        val direction = (Degree(theta.degrees) - degrees).signum()
+        val direction = (theta.degrees - degrees).signum()
         setPower(-direction * power, direction * power)
         while (parentOpMode!!.opModeIsActive() && degrees != theta);
         setPower(0.0, 0.0)
