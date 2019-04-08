@@ -9,18 +9,18 @@ import java.util.*
  * Comparisons between, conversions from, and basic math can be performed upon distances.
  * Multiplication between distances is not supported; however, scaling is.
  *
- * Instances can be created simply by supplying a unit and value,
+ * Instances can be created simply by supplying a unit and magnitude,
  *  or more complex units can be specified in terms of a base DistanceUnit.
  * Derived units must supply a multiplicative relation to an existing DistanceUnit,
  *  the precision to use for comparisons and printing,
  *  and a symbol.
  */
-open class Distance(val baseUnit: DistanceUnit,
+open class Distance(override val baseUnit: DistanceUnit,
                     val relation: Double,
                     val precision: Int,
                     val symbol: String,
-                    value: Double) : Comparable<Distance> {
-    val value = relation*value
+                    value: Double) : Quantity<Distance, DistanceUnit> {
+    override val magnitude = relation*value
 
     constructor(unit: DistanceUnit, value: Double):
             this(unit,
@@ -40,34 +40,34 @@ open class Distance(val baseUnit: DistanceUnit,
 
 
     fun abs(): Double {
-        return Math.abs(value)
+        return Math.abs(magnitude)
     }
 
     fun signum(): Double {
-        return Math.signum(value)
+        return Math.signum(magnitude)
     }
 
-    override fun compareTo(other: Distance): Int {
-        return value.compareTo(other.toUnit(baseUnit).value)
+    override fun compareTo(other: Quantity<Distance, DistanceUnit>): Int {
+        return magnitude.compareTo(other.toUnit(baseUnit).magnitude)
     }
 
-    operator fun times(s: Number) = Distance(this.baseUnit, this.value * s.toDouble())
+    operator fun times(s: Number) = Distance(this.baseUnit, this.magnitude * s.toDouble())
 
-    operator fun plus(d: Distance) = Distance(this.baseUnit, this.value + d.toUnit(this.baseUnit).value)
+    operator fun plus(d: Distance) = Distance(this.baseUnit, this.magnitude + d.toUnit(this.baseUnit).magnitude)
 
     operator fun minus(d: Distance) = this + -d
 
-    operator fun unaryMinus() = Distance(this.baseUnit, -this.value)
+    operator fun unaryMinus() = Distance(this.baseUnit, -this.magnitude)
 
-    fun toUnit(newUnit: DistanceUnit) = Distance(newUnit, newUnit.fromUnit(this.baseUnit, this.value))
+    override fun toUnit(newUnit: DistanceUnit) = Distance(newUnit, newUnit.fromUnit(this.baseUnit, this.magnitude))
 
-    override fun toString(): String = String.format(Locale.getDefault(), "%.${precision}f$symbol", value/relation);
+    override fun toString(): String = String.format(Locale.getDefault(), "%.${precision}f$symbol", magnitude/relation);
 
     override fun equals(other: Any?): Boolean {
         if (other is Distance) {
             if (this.baseUnit == other.baseUnit) {
-                //println("${Math.round(this.value*1000)} =?= ${Math.round(other.value*1000)}")
-                return Math.round(this.value*Math.pow(10.0,precision.toDouble())) == Math.round(other.value*Math.pow(10.0,precision.toDouble()))
+                //println("${Math.round(this.magnitude*1000)} =?= ${Math.round(other.magnitude*1000)}")
+                return Math.round(this.magnitude*Math.pow(10.0,precision.toDouble())) == Math.round(other.magnitude*Math.pow(10.0,precision.toDouble()))
             } else { // We need to get a common baseUnit
                 //println("${toCM()} =?= ${other.toCM()}")
                 return this.toCM() == other.toCM()

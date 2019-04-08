@@ -3,19 +3,19 @@ package org.firstinspires.ftc.teamcode.units
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import java.util.*
 
-class Angle(val baseUnit: AngleUnit,
+class Angle(override val baseUnit: AngleUnit,
             val relation: Double,
             val precision: Int,
             val symbol: String,
-            value: Double) : Comparable<Angle> {
-    val value = relation*value
+            value: Double) : Quantity<Angle, AngleUnit> {
+    override val magnitude = relation*value
 
     constructor(unit: AngleUnit, value: Double):
             this(unit,
                     1.0,
                     when (unit) {
                         AngleUnit.DEGREES -> 2
-                        AngleUnit.RADIANS -> 8
+                        AngleUnit.RADIANS -> 4
                     },
                     when (unit) {
                         AngleUnit.DEGREES -> "°"
@@ -24,44 +24,44 @@ class Angle(val baseUnit: AngleUnit,
                     value)
 
     fun abs(): Double {
-        return Math.abs(value)
+        return Math.abs(magnitude)
     }
 
     fun signum(): Double {
-        return Math.signum(value)
+        return Math.signum(magnitude)
     }
 
     val degrees get() = this.toUnit(AngleUnit.DEGREES)
     val radians get() = this.toUnit(AngleUnit.RADIANS)
 
-    override fun compareTo(other: Angle): Int {
-        return value.compareTo(other.toUnit(baseUnit).value)
+    override fun compareTo(other: Quantity<Angle, AngleUnit>): Int {
+        return magnitude.compareTo(other.toUnit(baseUnit).magnitude)
     }
 
-    operator fun times(s: Number) = Angle(this.baseUnit, this.value * s.toDouble())
+    operator fun times(s: Number) = Angle(this.baseUnit, this.magnitude * s.toDouble())
 
-    operator fun plus(a: Angle) = Angle(this.baseUnit, this.value + a.toUnit(this.baseUnit).value)
+    operator fun plus(a: Angle) = Angle(this.baseUnit, this.magnitude + a.toUnit(this.baseUnit).magnitude)
 
     operator fun minus(a: Angle) = this + -a
 
-    operator fun unaryMinus() = Angle(this.baseUnit, -this.value)
+    operator fun unaryMinus() = Angle(this.baseUnit, -this.magnitude)
 
-    fun toUnit(newUnit: AngleUnit) = Angle(newUnit, newUnit.fromUnit(this.baseUnit, this.value))
+    override fun toUnit(newUnit: AngleUnit) = Angle(newUnit, newUnit.fromUnit(this.baseUnit, this.magnitude))
 
     fun normalize(): Angle {
         return when (baseUnit) {
 
-            AngleUnit.DEGREES -> Degree(AngleUnit.normalizeDegrees(value))
-            AngleUnit.RADIANS -> Radian(AngleUnit.normalizeRadians(value))
+            AngleUnit.DEGREES -> Degree(AngleUnit.normalizeDegrees(magnitude))
+            AngleUnit.RADIANS -> Radian(AngleUnit.normalizeRadians(magnitude))
         }
     }
 
-    override fun toString(): String = String.format(Locale.getDefault(), "%.${precision}f$symbol", value/relation)
+    override fun toString(): String = String.format(Locale.getDefault(), "%.${precision}f$symbol", magnitude/relation)
 
     override fun equals(other: Any?): Boolean {
         if (other is Angle) {
             if (this.baseUnit == other.baseUnit) {
-                return Math.round(this.value*Math.pow(10.0,precision.toDouble())) == Math.round(other.value*Math.pow(10.0,precision.toDouble()))
+                return Math.round(this.magnitude*Math.pow(10.0,precision.toDouble())) == Math.round(other.magnitude*Math.pow(10.0,precision.toDouble()))
             } else { // We need to get a common baseUnit
                 return this.degrees.normalize() == other.degrees.normalize()
             }
