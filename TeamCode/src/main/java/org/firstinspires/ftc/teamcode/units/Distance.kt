@@ -39,25 +39,16 @@ open class Distance(override val baseUnit: DistanceUnit,
     fun toInches() = this.toUnit(DistanceUnit.INCH)
 
 
-    fun abs(): Double {
-        return Math.abs(magnitude)
-    }
-
-    fun signum(): Double {
-        return Math.signum(magnitude)
-    }
 
     override fun compareTo(other: Quantity<Distance, DistanceUnit>): Int {
         return magnitude.compareTo(other.toUnit(baseUnit).magnitude)
     }
 
-    operator fun times(s: Number) = Distance(this.baseUnit, this.magnitude * s.toDouble())
+    override operator fun times(s: Number) = Distance(this.baseUnit, this.magnitude * s.toDouble())
 
-    operator fun plus(d: Distance) = Distance(this.baseUnit, this.magnitude + d.toUnit(this.baseUnit).magnitude)
+    override operator fun plus(d: Quantity<Distance, DistanceUnit>) = Distance(this.baseUnit, this.magnitude + d.toUnit(this.baseUnit).magnitude)
 
-    operator fun minus(d: Distance) = this + -d
-
-    operator fun unaryMinus() = Distance(this.baseUnit, -this.magnitude)
+    override operator fun unaryMinus() = Distance(this.baseUnit, -this.magnitude)
 
     override fun toUnit(newUnit: DistanceUnit) = Distance(newUnit, newUnit.fromUnit(this.baseUnit, this.magnitude))
 
