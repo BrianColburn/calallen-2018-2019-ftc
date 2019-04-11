@@ -23,18 +23,11 @@ class Angle(override val baseUnit: AngleUnit,
                     },
                     value)
 
+    override fun mkQuantity(baseUnit: AngleUnit, magnitude: Double): Angle
+        = Angle(baseUnit, magnitude)
+
     val degrees get() = this.toUnit(AngleUnit.DEGREES)
     val radians get() = this.toUnit(AngleUnit.RADIANS)
-
-    override fun compareTo(other: Quantity<Angle, AngleUnit>): Int {
-        return magnitude.compareTo(other.toUnit(baseUnit).magnitude)
-    }
-
-    override operator fun times(s: Number) = Angle(this.baseUnit, this.magnitude * s.toDouble())
-
-    override operator fun plus(a: Quantity<Angle, AngleUnit>) = Angle(this.baseUnit, this.magnitude + a.toUnit(this.baseUnit).magnitude)
-
-    override operator fun unaryMinus() = Angle(this.baseUnit, -this.magnitude)
 
     override fun toUnit(newUnit: AngleUnit) = Angle(newUnit, newUnit.fromUnit(this.baseUnit, this.magnitude))
 

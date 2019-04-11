@@ -1,20 +1,13 @@
 package org.firstinspires.ftc.teamcode
 
-import com.qualcomm.robotcore.hardware.ColorSensor
-import com.qualcomm.robotcore.hardware.DcMotor
-
-import org.firstinspires.ftc.teamcode.units.Centimeter
-import org.firstinspires.ftc.teamcode.units.Foot
-import org.firstinspires.ftc.teamcode.wheelmanager.WheelManager
-import java.lang.reflect.Field
-import java.lang.reflect.Method
-import java.lang.reflect.Modifier
-import java.util.Arrays
-import java.util.LinkedList
-
-import java8.util.J8Arrays
-import org.firstinspires.ftc.teamcode.units.Degree
-import org.firstinspires.ftc.teamcode.units.Inches
+import org.firstinspires.ftc.teamcode.units.*
+                                         /* Foot
+                                          * Centimeter
+                                          * Inches
+                                          * times
+                                          * Degree
+                                          * Radian
+                                          */
 
 object testkt {
     @JvmStatic
@@ -22,8 +15,15 @@ object testkt {
         val foot = Foot(1.0)
         println("$foot = ${foot.toCM()} = ${foot.toInches()}")
         println(foot - Centimeter(30.48) == Inches(0.0))
+        val footTests = listOf(foot*2, 2*foot, 2.0*foot, 4*foot/2, foot+foot, 3*foot-foot)
+        println(footTests.all { it == footTests[0] })
 
-        val ninety = Degree(90.0)
-        println("$ninety = ${ninety.radians}")
+        listOf(0,45,90,179,180,360).forEach {
+            val angle = Degree(it.toDouble())
+            println("$angle = ${angle.radians}")
+        }
+        Radian(Math.PI/4).let {
+            println("$it = ${it.degrees}")
+        }
     }
 }
